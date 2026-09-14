@@ -24,6 +24,17 @@ Open `index.html`, enter a GitHub org or username, and click **Load repos**. Tha
 
 Forked repos are excluded from the listing, on the assumption that an index like this is meant to surface original work.
 
+## Testing locally before pushing
+
+Opening `index.html` directly from disk (`file://...`) can fail silently in some browsers, because a `file://` page's fetch requests carry a `null` origin that not every browser treats the same way. Serve the folder over a local HTTP server instead:
+
+```bash
+cd org-repo-index
+python3 -m http.server 8000
+```
+
+Then open `http://localhost:8000` and try it against any real public org, e.g. `github` or `microsoft`, to see it working before pointing it at your own.
+
 ## Deploying to GitHub Pages
 
 1. Push this repo to GitHub.
