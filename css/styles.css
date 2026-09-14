@@ -1,0 +1,43 @@
+/* Small additions on top of Bootstrap 5 utility classes. */
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1050;
+  padding: 0.5rem 1rem;
+  background: #fff;
+}
+
+.repo-card {
+  height: 100%;
+}
+
+.repo-card .card-title a {
+  text-decoration: none;
+}
+
+.repo-card .card-title a:hover,
+.repo-card .card-title a:focus {
+  text-decoration: underline;
+}
+
+.contributor-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.topic-badge {
+  font-weight: 500;
+}
+
+/* Keep focus rings visible everywhere; never suppress them. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+  outline: 3px solid #0d6efd;
+  outline-offset: 2px;
+}
