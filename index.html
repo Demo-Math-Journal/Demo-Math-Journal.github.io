@@ -21,6 +21,19 @@
     integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
     crossorigin="anonymous">
   <link rel="stylesheet" href="assets/style.css">
+  <script>
+    // Repo summaries may contain LaTeX (e.g. $...$ or $$...$$), pulled
+    // verbatim from each repo's README.
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']],
+      },
+    };
+  </script>
+  <script
+    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
+    defer></script>
 </head>
 <body>
   <a class="visually-hidden-focusable skip-link" href="#main-content">Skip to main content</a>

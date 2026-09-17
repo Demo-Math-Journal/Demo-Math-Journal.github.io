@@ -48,3 +48,10 @@ input:focus-visible {
   font-size: 0.65em;
   vertical-align: middle;
 }
+
+/* Keep display-math typeset by MathJax from overflowing narrow cards. */
+.card-text mjx-container[display="true"] {
+  overflow-x: auto;
+  overflow-y: hidden;
+  max-width: 100%;
+}
