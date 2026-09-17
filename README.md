@@ -7,7 +7,7 @@ I'm a journal on mathematical methods and their applications.
 
 An automatically generated index of every repository in the [Demo-Math-Journal](https://github.com/Demo-Math-Journal) organization. Rebuilt nightly by [GitHub Actions](.github/workflows/build-index.yml). See [SETUP.md](SETUP.md) for how it works.
 
-_Last built: 2026-09-17T14:49:42.069Z_
+_Last built: 2026-09-17T15:04:05.323Z_
 
 ## [Adaptive Quadrature](https://github.com/Demo-Math-Journal/adaptive-quadrature)
 
@@ -17,7 +17,7 @@ Error-controlled numerical integration: adaptive Simpson's rule versus a fixed-g
 
 ## [Monte Carlo Integrator](https://github.com/Demo-Math-Journal/monte-carlo-integrator)
 
-Stochastic estimation of definite integrals and of pi, with an experiment tracking how the error actually shrinks as the sample count grows.
+Stochastic estimation of definite integrals and of pi, with an experiment tracking how the error actually shrinks as the sample count grows. $$\left( \sum{k=1}^n ak bk \right)^2 \leq \left( \sum{k=1}^n ak^2 \right) \left( \sum{k=1}^n b_k^2 \right)$$
 
 **Contributors:** _none listed_
 

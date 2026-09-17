@@ -2,7 +2,7 @@
   "org": "Demo-Math-Journal",
   "title": "Demo Math Journal",
   "description": "I'm a journal on mathematical methods and their applications.",
-  "builtAt": "2026-09-17T14:49:42.069Z",
+  "builtAt": "2026-09-17T15:04:05.323Z",
   "repos": [
     {
       "name": "adaptive-quadrature",
@@ -28,12 +28,12 @@
       "displayTitle": "Monte Carlo Integrator",
       "htmlUrl": "https://github.com/Demo-Math-Journal/monte-carlo-integrator",
       "description": null,
-      "summary": "Stochastic estimation of definite integrals and of pi, with an experiment tracking how the error actually shrinks as the sample count grows.",
+      "summary": "Stochastic estimation of definite integrals and of pi, with an experiment tracking how the error actually shrinks as the sample count grows. $$\\left( \\sum{k=1}^n ak bk \\right)^2 \\leq \\left( \\sum{k=1}^n ak^2 \\right) \\left( \\sum{k=1}^n b_k^2 \\right)$$",
       "contributors": [],
       "contributorsOverflow": false,
       "isFork": false,
       "isArchived": false,
-      "updatedAt": "2026-09-14T19:24:33Z"
+      "updatedAt": "2026-09-17T15:03:24Z"
     },
     {
       "name": "newton-raphson-lab",
