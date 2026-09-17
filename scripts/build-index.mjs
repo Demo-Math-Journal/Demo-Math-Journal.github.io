@@ -528,7 +528,7 @@ ${cards}
             <button type="button" class="btn-close" id="pdf-pane-close" aria-label="Close PDF viewer"></button>
           </div>
           <div id="pdf-pane-status" class="text-body-secondary small mb-2 d-none" role="status"></div>
-          <iframe id="pdf-frame" class="d-none" title="Repository PDF"></iframe>
+          <div id="pdf-pages" class="pdf-pages"></div>
         </div>
       </div>
     </div>
@@ -542,7 +542,7 @@ ${cards}
   </footer>
 
   <script src="assets/filter.js" defer></script>
-  <script src="assets/pdf-reader.js" defer></script>
+  <script type="module" src="assets/pdf-reader.js"></script>
 </body>
 </html>
 `;
