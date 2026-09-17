@@ -2,7 +2,7 @@
   "org": "Demo-Math-Journal",
   "title": "Demo Math Journal",
   "description": "I'm a journal on mathematical methods and their applications.",
-  "builtAt": "2026-09-17T14:46:58.645Z",
+  "builtAt": "2026-09-17T14:49:42.069Z",
   "repos": [
     {
       "name": "adaptive-quadrature",
@@ -13,7 +13,9 @@
       "contributors": [
         {
           "login": "woodwardtw",
-          "htmlUrl": "https://github.com/woodwardtw"
+          "htmlUrl": "https://github.com/woodwardtw",
+          "avatarUrl": "https://avatars.githubusercontent.com/u/5863137?v=4",
+          "name": "Tom Woodward"
         }
       ],
       "contributorsOverflow": false,
