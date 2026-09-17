@@ -391,7 +391,7 @@ function renderRepoCard(entry) {
     .filter(Boolean)
     .join(' ');
 
-  return `      <div class="col-12 col-md-6 col-lg-4 repo-card" data-repo-search="${searchKey}">
+  return `      <div class="col-12 repo-card" data-repo-search="${searchKey}">
         <article class="card h-100">
           <div class="card-body d-flex flex-column">
             <h2 class="h5 card-title">
