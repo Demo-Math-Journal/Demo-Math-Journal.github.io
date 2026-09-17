@@ -5,13 +5,13 @@
 
 An automatically generated index of every repository in the [Demo-Math-Journal](https://github.com/Demo-Math-Journal) organization. Rebuilt nightly by [GitHub Actions](.github/workflows/build-index.yml). See [SETUP.md](SETUP.md) for how it works.
 
-_Last built: 2026-09-17T13:22:09.466Z_
+_Last built: 2026-09-17T14:17:23.820Z_
 
 ## [Adaptive Quadrature](https://github.com/Demo-Math-Journal/adaptive-quadrature)
 
 Error-controlled numerical integration: adaptive Simpson's rule versus a fixed-grid Simpson's rule, compared at matched function-evaluation budgets.
 
-**Contributors:** _none listed_
+**Contributors:** [@woodwardtw](https://github.com/woodwardtw)
 
 ## [Monte Carlo Integrator](https://github.com/Demo-Math-Journal/monte-carlo-integrator)
 
