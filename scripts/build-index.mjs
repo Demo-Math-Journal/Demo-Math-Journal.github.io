@@ -196,6 +196,13 @@ function escapeHtml(str) {
     .replace(/'/g, '&#39;');
 }
 
+function titleCaseFromRepoName(name) {
+  return name
+    .split(/[-_]/)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
 // ---------------------------------------------------------------------
 // Gather data for every repo
 // ---------------------------------------------------------------------
@@ -220,6 +227,7 @@ async function buildRepoEntries() {
 
     entries.push({
       name: repo.name,
+      displayTitle: titleCaseFromRepoName(repo.name),
       htmlUrl: repo.html_url,
       description: repo.description || null,
       summary: firstParagraph || repo.description || null,
@@ -256,7 +264,7 @@ function renderReadme(entries, builtAt) {
   }
 
   for (const entry of entries) {
-    lines.push(`## [${entry.name}](${entry.htmlUrl})`);
+    lines.push(`## [${entry.displayTitle}](${entry.htmlUrl})`);
     lines.push('');
     if (entry.summary) {
       lines.push(entry.summary);
@@ -299,7 +307,7 @@ function formatContributorsHtml(entry) {
 
 function renderRepoCard(entry) {
   const searchKey = escapeHtml(
-    `${entry.name} ${entry.description || ''}`.toLowerCase()
+    `${entry.displayTitle} ${entry.name} ${entry.description || ''}`.toLowerCase()
   );
   const summary = entry.summary
     ? escapeHtml(entry.summary)
@@ -315,7 +323,7 @@ function renderRepoCard(entry) {
         <article class="card h-100">
           <div class="card-body d-flex flex-column">
             <h2 class="h5 card-title">
-              <a href="${escapeHtml(entry.htmlUrl)}">${escapeHtml(entry.name)}</a>
+              <a href="${escapeHtml(entry.htmlUrl)}">${escapeHtml(entry.displayTitle)}</a>
               ${badges}
             </h2>
             <p class="card-text flex-grow-1">${summary}</p>
