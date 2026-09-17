@@ -49,11 +49,27 @@ input:focus-visible {
   vertical-align: middle;
 }
 
+header {
+  background-color: #fff;
+}
+
+body {
+  background-color: #c8dced;
+}
+
 /* Keep display-math typeset by MathJax from overflowing narrow cards. */
 .card-text mjx-container[display="true"] {
   overflow-x: auto;
   overflow-y: hidden;
   max-width: 100%;
+}
+
+/* Highlights the repo card whose "Read the PDF" button opened the
+   currently-open PDF pane. Cleared as soon as the pane closes (see
+   assets/pdf-reader.js), so at most one card ever carries this class. */
+.repo-card.is-reading .card {
+  border-color: var(--bs-primary);
+  box-shadow: 0 0 0 2px rgba(var(--bs-primary-rgb), 0.35);
 }
 
 /* Right-hand PDF reading pane, opened by a repo card's "Read the PDF"

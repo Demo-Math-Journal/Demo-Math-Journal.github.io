@@ -31,9 +31,17 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
   if (!main || !indexPane || !repoList || !pdfPane || !pagesEl) return;
 
   var requestToken = 0;
+  var selectedCard = null;
 
   function isPaneOpen() {
     return !pdfPane.classList.contains('d-none');
+  }
+
+  function selectCard(card) {
+    if (selectedCard === card) return;
+    if (selectedCard) selectedCard.classList.remove('is-reading');
+    selectedCard = card;
+    if (selectedCard) selectedCard.classList.add('is-reading');
   }
 
   function openPane() {
@@ -52,6 +60,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
     pdfPane.classList.remove('col-lg-7');
     requestToken++; // cancel any in-flight fetch/render for the pane we just closed
     pagesEl.innerHTML = '';
+    selectCard(null);
   }
 
   function setStatus(text) {
@@ -133,6 +142,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
   repoList.addEventListener('click', function (e) {
     var btn = e.target.closest('.read-pdf-btn');
     if (btn) {
+      selectCard(btn.closest('.repo-card'));
       openPdf(btn.getAttribute('data-pdf-url'), btn.getAttribute('data-pdf-title'));
       return;
     }
