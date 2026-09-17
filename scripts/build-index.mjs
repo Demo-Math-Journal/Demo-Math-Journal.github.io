@@ -13,6 +13,7 @@ import path from 'node:path';
 const ORG = process.env.GITHUB_ORG || 'Demo-Math-Journal';
 const TOKEN = process.env.GITHUB_TOKEN;
 const EXCLUDED_LOGIN = 'twoodwardmidd'; // excluded contributor, case-insensitive
+const userNameCache = new Map(); // login -> full name (or null), shared across repos
 const API_BASE = 'https://api.github.com';
 const MAX_PARAGRAPH_LENGTH = 320;
 
@@ -88,9 +89,30 @@ async function getReadmeText(owner, repo) {
   return Buffer.from(json.content.replace(/\n/g, ''), 'base64').toString('utf-8');
 }
 
+// Looks up a GitHub user's profile "name" (their full name, if they've set
+// one — many users haven't). Cached across the whole run since the same
+// person often contributes to more than one repo.
+async function getUserFullName(login) {
+  if (userNameCache.has(login)) return userNameCache.get(login);
+  let name = null;
+  try {
+    const res = await ghRequest(`${API_BASE}/users/${encodeURIComponent(login)}`);
+    if (res.ok) {
+      const data = await res.json();
+      name = typeof data.name === 'string' && data.name.trim() ? data.name.trim() : null;
+    }
+  } catch (err) {
+    console.warn(`  Could not fetch profile for ${login}: ${err.message}`);
+  }
+  userNameCache.set(login, name);
+  return name;
+}
+
 // Returns { contributors, overflow } where contributors excludes bots and
 // EXCLUDED_LOGIN, and overflow is true if GitHub declined to compute the
-// full list (it does this for repos with very many contributors).
+// full list (it does this for repos with very many contributors). Each
+// contributor carries login, htmlUrl, avatarUrl, and name (their GitHub
+// profile full name, or null if they haven't set one).
 async function getContributors(owner, repo) {
   const url = `${API_BASE}/repos/${owner}/${repo}/contributors?per_page=100&anon=false`;
   try {
@@ -102,10 +124,19 @@ async function getContributors(owner, repo) {
       return { contributors: [], overflow: false };
     }
     const list = await ghPaginate(url);
-    const contributors = list
+    const filtered = list
       .filter((c) => c.type !== 'Bot' && c.login && c.login.toLowerCase() !== EXCLUDED_LOGIN)
-      .sort((a, b) => b.contributions - a.contributions)
-      .map((c) => ({ login: c.login, htmlUrl: c.html_url }));
+      .sort((a, b) => b.contributions - a.contributions);
+
+    const contributors = [];
+    for (const c of filtered) {
+      contributors.push({
+        login: c.login,
+        htmlUrl: c.html_url,
+        avatarUrl: c.avatar_url,
+        name: await getUserFullName(c.login),
+      });
+    }
     return { contributors, overflow: false };
   } catch (err) {
     console.warn(`  Contributors fetch errored for ${owner}/${repo}: ${err.message}`);
@@ -333,7 +364,13 @@ function formatContributorsHtml(entry) {
       : '<span class="text-body-secondary">none listed</span>';
   }
   const links = entry.contributors
-    .map((c) => `<a href="${escapeHtml(c.htmlUrl)}">@${escapeHtml(c.login)}</a>`)
+    .map((c) => {
+      const label = escapeHtml(c.name || `@${c.login}`);
+      const avatar = c.avatarUrl
+        ? `<img src="${escapeHtml(c.avatarUrl)}&s=48" width="20" height="20" class="rounded-circle" alt="" loading="lazy">`
+        : '';
+      return `<a href="${escapeHtml(c.htmlUrl)}" class="d-inline-flex align-items-center gap-1 text-decoration-none">${avatar}<span>${label}</span></a>`;
+    })
     .join(', ');
   return entry.contributorsOverflow
     ? `${links}, <span class="text-body-secondary">and more</span>`
@@ -363,7 +400,7 @@ function renderRepoCard(entry) {
             </h2>
             <p class="card-text flex-grow-1">${summary}</p>
             <p class="card-text small mb-0">
-              <span class="fw-semibold">Contributors:</span>
+              <span class="fw-semibold">Author(s):</span>
               ${formatContributorsHtml(entry)}
             </p>
           </div>
