@@ -1,0 +1,55 @@
+name: Build organization repository index
+
+# Rebuilds README.md, index.html, and data/repos.json from the current state
+# of every repository in the Demo-Math-Journal organization, then commits the
+# result if anything changed. See ../../SETUP.md for how this works.
+
+on:
+  schedule:
+    # 07:17 UTC daily (~3:17am US Eastern during EDT, 2:17am during EST).
+    # Off-peak minute/hour to avoid GitHub Actions' top-of-hour congestion.
+    - cron: '17 7 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+# Prevent overlapping builds; let a queued run wait rather than cancel.
+concurrency:
+  group: build-index
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out this repository
+        uses: actions/checkout@v4
+        with:
+          # Uses INDEX_REPO_TOKEN if you've added one (see SETUP.md — needed
+          # when your organization's default workflow permissions are
+          # locked to read-only), otherwise falls back to the default token.
+          token: ${{ secrets.INDEX_REPO_TOKEN || secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Build the index
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_ORG: Demo-Math-Journal
+        run: node scripts/build-index.mjs
+
+      - name: Commit and push if the index changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md index.html data/repos.json
+          if git diff --cached --quiet; then
+            echo "No changes to the index — nothing to commit."
+          else
+            git commit -m "chore: rebuild organization repository index"
+            git push
+          fi
