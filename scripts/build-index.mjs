@@ -144,6 +144,35 @@ async function getContributors(owner, repo) {
   }
 }
 
+// Returns the raw-content URL for a repo's PDF, or null if it has no
+// top-level `pdf/` directory or that directory holds no `.pdf` file.
+// Prefers a file named exactly `title.pdf`, falling back to the first
+// PDF found. Raw GitHub content serves with `Access-Control-Allow-Origin:
+// *`, so the browser can `fetch()` it directly (it just can't be framed,
+// since raw.githubusercontent.com sends X-Frame-Options: deny).
+async function getPdfUrl(owner, repo, defaultBranch) {
+  const url = `${API_BASE}/repos/${owner}/${repo}/contents/pdf`;
+  try {
+    const res = await ghRequest(url);
+    if (res.status === 404) return null;
+    if (!res.ok) {
+      console.warn(`  pdf/ listing failed for ${owner}/${repo}: ${res.status}`);
+      return null;
+    }
+    const listing = await res.json();
+    if (!Array.isArray(listing)) return null; // pdf/ exists but isn't a directory
+    const pdfFiles = listing.filter(
+      (item) => item.type === 'file' && item.name.toLowerCase().endsWith('.pdf')
+    );
+    if (pdfFiles.length === 0) return null;
+    const chosen = pdfFiles.find((item) => item.name.toLowerCase() === 'title.pdf') || pdfFiles[0];
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${defaultBranch}/pdf/${chosen.name}`;
+  } catch (err) {
+    console.warn(`  pdf/ listing errored for ${owner}/${repo}: ${err.message}`);
+    return null;
+  }
+}
+
 // ---------------------------------------------------------------------
 // README parsing: pull the first real paragraph out of a README's
 // markdown, skipping front matter, headings, rules, tables, and
@@ -280,9 +309,10 @@ async function buildRepoEntries() {
   const entries = [];
   for (const repo of rawRepos) {
     console.log(`Processing ${repo.full_name}...`);
-    const [readmeText, contributorInfo] = await Promise.all([
+    const [readmeText, contributorInfo, pdfUrl] = await Promise.all([
       getReadmeText(repo.owner.login, repo.name),
       getContributors(repo.owner.login, repo.name),
+      getPdfUrl(repo.owner.login, repo.name, repo.default_branch),
     ]);
 
     const firstParagraph = extractFirstParagraph(readmeText);
@@ -298,6 +328,7 @@ async function buildRepoEntries() {
       isFork: repo.fork,
       isArchived: repo.archived,
       updatedAt: repo.pushed_at,
+      pdfUrl,
     });
   }
   return entries;
@@ -390,6 +421,17 @@ function renderRepoCard(entry) {
   ]
     .filter(Boolean)
     .join(' ');
+  const pdfButton = entry.pdfUrl
+    ? `
+            <div class="mt-2">
+              <button
+                type="button"
+                class="btn btn-sm btn-outline-primary read-pdf-btn"
+                data-pdf-url="${escapeHtml(entry.pdfUrl)}"
+                data-pdf-title="${escapeHtml(entry.displayTitle)}"
+              >Read the PDF</button>
+            </div>`
+    : '';
 
   return `      <div class="col-12 repo-card" data-repo-search="${searchKey}">
         <article class="card h-100">
@@ -402,7 +444,7 @@ function renderRepoCard(entry) {
             <p class="card-text small mb-0">
               <span class="fw-semibold">Author(s):</span>
               ${formatContributorsHtml(entry)}
-            </p>
+            </p>${pdfButton}
           </div>
         </article>
       </div>`;
@@ -462,19 +504,34 @@ function renderHtml(entries, builtAt, site) {
   </header>
 
   <main id="main-content" class="container pb-5">
-    <div class="row mb-4">
-      <div class="col-12 col-md-6">
-        <label for="repo-search" class="form-label">Filter repositories</label>
-        <input type="search" id="repo-search" class="form-control" placeholder="Type a repo name or keyword…">
-        <div id="repo-search-status" class="form-text" aria-live="polite">Showing ${entries.length} of ${entries.length} repositories.</div>
+    <div class="row g-4 align-items-start">
+      <div class="col-12" id="index-pane">
+        <div class="row mb-4">
+          <div class="col-12 col-md-6">
+            <label for="repo-search" class="form-label">Filter repositories</label>
+            <input type="search" id="repo-search" class="form-control" placeholder="Type a repo name or keyword…">
+            <div id="repo-search-status" class="form-text" aria-live="polite">Showing ${entries.length} of ${entries.length} repositories.</div>
+          </div>
+        </div>
+
+        <div class="row g-4" id="repo-list">
+${cards}
+        </div>
+
+        <p id="no-results" class="text-body-secondary mt-4 d-none" role="status">No repositories match your filter.</p>
+      </div>
+
+      <div class="col-12 d-none" id="pdf-pane">
+        <div class="pdf-pane-inner">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h2 class="h6 mb-0" id="pdf-pane-title">Reading PDF</h2>
+            <button type="button" class="btn-close" id="pdf-pane-close" aria-label="Close PDF viewer"></button>
+          </div>
+          <div id="pdf-pane-status" class="text-body-secondary small mb-2 d-none" role="status"></div>
+          <iframe id="pdf-frame" class="d-none" title="Repository PDF"></iframe>
+        </div>
       </div>
     </div>
-
-    <div class="row g-4" id="repo-list">
-${cards}
-    </div>
-
-    <p id="no-results" class="text-body-secondary mt-4 d-none" role="status">No repositories match your filter.</p>
   </main>
 
   <footer class="border-top py-4 mt-5">
@@ -485,6 +542,7 @@ ${cards}
   </footer>
 
   <script src="assets/filter.js" defer></script>
+  <script src="assets/pdf-reader.js" defer></script>
 </body>
 </html>
 `;

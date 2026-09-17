@@ -55,3 +55,25 @@ input:focus-visible {
   overflow-y: hidden;
   max-width: 100%;
 }
+
+/* Right-hand PDF reading pane, opened by a repo card's "Read the PDF"
+   button. Sticky so it stays in view while the (now-narrower) index
+   scrolls beside it. */
+#pdf-pane {
+  position: sticky;
+  top: 1rem;
+  height: calc(100vh - 2rem);
+}
+
+.pdf-pane-inner {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#pdf-frame {
+  flex: 1 1 auto;
+  width: 100%;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius);
+}
