@@ -5,4 +5,22 @@
 
 An automatically generated index of every repository in the [Demo-Math-Journal](https://github.com/Demo-Math-Journal) organization. Rebuilt nightly by [GitHub Actions](.github/workflows/build-index.yml). See [SETUP.md](SETUP.md) for how it works.
 
-_Not built yet. This file is replaced the first time the "Build organization repository index" workflow runs — either on its nightly schedule or when you trigger it manually from the Actions tab._
+_Last built: 2026-09-17T12:55:10.533Z_
+
+## [adaptive-quadrature](https://github.com/Demo-Math-Journal/adaptive-quadrature)
+
+Error-controlled numerical integration: adaptive Simpson's rule versus a fixed-grid Simpson's rule, compared at matched function-evaluation budgets.
+
+**Contributors:** _none listed_
+
+## [monte-carlo-integrator](https://github.com/Demo-Math-Journal/monte-carlo-integrator)
+
+Stochastic estimation of definite integrals and of pi, with an experiment tracking how the error actually shrinks as the sample count grows.
+
+**Contributors:** _none listed_
+
+## [newton-raphson-lab](https://github.com/Demo-Math-Journal/newton-raphson-lab)
+
+Root-finding methods and their convergence behavior, compared side by side: Newton-Raphson, secant, and bisection.
+
+**Contributors:** _none listed_
