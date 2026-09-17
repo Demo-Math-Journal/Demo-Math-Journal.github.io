@@ -1,6 +1,8 @@
 {
   "org": "Demo-Math-Journal",
-  "builtAt": "2026-09-17T14:17:23.820Z",
+  "title": "Demo Math Journal",
+  "description": "I'm a journal on mathematical methods and their applications.",
+  "builtAt": "2026-09-17T14:42:18.743Z",
   "repos": [
     {
       "name": "adaptive-quadrature",
