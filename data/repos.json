@@ -1,6 +1,6 @@
 {
   "org": "Demo-Math-Journal",
-  "builtAt": "2026-09-17T13:22:09.466Z",
+  "builtAt": "2026-09-17T14:17:23.820Z",
   "repos": [
     {
       "name": "adaptive-quadrature",
@@ -8,7 +8,12 @@
       "htmlUrl": "https://github.com/Demo-Math-Journal/adaptive-quadrature",
       "description": null,
       "summary": "Error-controlled numerical integration: adaptive Simpson's rule versus a fixed-grid Simpson's rule, compared at matched function-evaluation budgets.",
-      "contributors": [],
+      "contributors": [
+        {
+          "login": "woodwardtw",
+          "htmlUrl": "https://github.com/woodwardtw"
+        }
+      ],
       "contributorsOverflow": false,
       "isFork": false,
       "isArchived": false,
