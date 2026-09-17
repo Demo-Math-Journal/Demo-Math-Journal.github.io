@@ -1,9 +1,10 @@
 {
   "org": "Demo-Math-Journal",
-  "builtAt": "2026-09-17T13:02:10.095Z",
+  "builtAt": "2026-09-17T13:22:09.466Z",
   "repos": [
     {
       "name": "adaptive-quadrature",
+      "displayTitle": "Adaptive Quadrature",
       "htmlUrl": "https://github.com/Demo-Math-Journal/adaptive-quadrature",
       "description": null,
       "summary": "Error-controlled numerical integration: adaptive Simpson's rule versus a fixed-grid Simpson's rule, compared at matched function-evaluation budgets.",
@@ -15,6 +16,7 @@
     },
     {
       "name": "monte-carlo-integrator",
+      "displayTitle": "Monte Carlo Integrator",
       "htmlUrl": "https://github.com/Demo-Math-Journal/monte-carlo-integrator",
       "description": null,
       "summary": "Stochastic estimation of definite integrals and of pi, with an experiment tracking how the error actually shrinks as the sample count grows.",
@@ -26,6 +28,7 @@
     },
     {
       "name": "newton-raphson-lab",
+      "displayTitle": "Newton Raphson Lab",
       "htmlUrl": "https://github.com/Demo-Math-Journal/newton-raphson-lab",
       "description": null,
       "summary": "Root-finding methods and their convergence behavior, compared side by side: Newton-Raphson, secant, and bisection.",
