@@ -423,28 +423,34 @@ function renderRepoCard(entry) {
     .join(' ');
   const pdfButton = entry.pdfUrl
     ? `
-            <div class="mt-2">
               <button
                 type="button"
                 class="btn btn-sm btn-outline-primary read-pdf-btn"
                 data-pdf-url="${escapeHtml(entry.pdfUrl)}"
                 data-pdf-title="${escapeHtml(entry.displayTitle)}"
-              >Read the PDF</button>
-            </div>`
+              >Read the PDF</button>`
     : '';
 
   return `      <div class="col-12 repo-card" data-repo-search="${searchKey}">
         <article class="card h-100">
           <div class="card-body d-flex flex-column">
             <h2 class="h5 card-title">
-              <a href="${escapeHtml(entry.htmlUrl)}">${escapeHtml(entry.displayTitle)}</a>
+              ${escapeHtml(entry.displayTitle)}
               ${badges}
             </h2>
             <p class="card-text flex-grow-1">${summary}</p>
             <p class="card-text small mb-0">
               <span class="fw-semibold">Author(s):</span>
               ${formatContributorsHtml(entry)}
-            </p>${pdfButton}
+            </p>
+            <div class="mt-2 d-flex flex-wrap gap-2">
+              <a
+                href="${escapeHtml(entry.htmlUrl)}"
+                class="btn btn-sm btn-outline-secondary"
+                target="_blank"
+                rel="noopener noreferrer"
+              >View on GitHub</a>${pdfButton}
+            </div>
           </div>
         </article>
       </div>`;
