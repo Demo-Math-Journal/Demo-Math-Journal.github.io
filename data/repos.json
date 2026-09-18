@@ -2,7 +2,7 @@
   "org": "Demo-Math-Journal",
   "title": "Demo Math Journal",
   "description": "I'm a journal on mathematical methods and their applications.",
-  "builtAt": "2026-09-17T15:04:05.323Z",
+  "builtAt": "2026-09-18T12:13:31.443Z",
   "repos": [
     {
       "name": "adaptive-quadrature",
@@ -21,7 +21,8 @@
       "contributorsOverflow": false,
       "isFork": false,
       "isArchived": false,
-      "updatedAt": "2026-09-17T12:58:06Z"
+      "updatedAt": "2026-09-17T12:58:06Z",
+      "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/adaptive-quadrature/master/pdf/title.pdf"
     },
     {
       "name": "monte-carlo-integrator",
@@ -33,7 +34,8 @@
       "contributorsOverflow": false,
       "isFork": false,
       "isArchived": false,
-      "updatedAt": "2026-09-17T15:03:24Z"
+      "updatedAt": "2026-09-17T15:03:24Z",
+      "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/monte-carlo-integrator/master/pdf/title.pdf"
     },
     {
       "name": "newton-raphson-lab",
@@ -45,7 +47,8 @@
       "contributorsOverflow": false,
       "isFork": false,
       "isArchived": false,
-      "updatedAt": "2026-09-14T19:26:15Z"
+      "updatedAt": "2026-09-14T19:26:15Z",
+      "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/newton-raphson-lab/master/pdf/title.pdf"
     }
   ]
 }
