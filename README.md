@@ -7,7 +7,7 @@ I'm a journal on mathematical methods and their applications.
 
 An automatically generated index of every repository in the [Demo-Math-Journal](https://github.com/Demo-Math-Journal) organization. Rebuilt nightly by [GitHub Actions](.github/workflows/build-index.yml). See [SETUP.md](SETUP.md) for how it works.
 
-_Last built: 2026-10-02T13:51:16.782Z_
+_Last built: 2026-10-02T15:34:27.622Z_
 
 ## [Adaptive Quadrature](https://github.com/Demo-Math-Journal/adaptive-quadrature)
 
@@ -23,6 +23,6 @@ Stochastic estimation of definite integrals and of pi, with an experiment tracki
 
 ## [Newton Raphson Lab](https://github.com/Demo-Math-Journal/newton-raphson-lab)
 
-Root-finding methods and their convergence behavior, compared side by side: Newton-Raphson, secant, and bisection.
+Root-finding methods and their convergence behavior, compared side by side: Newton-Raphson, secant, and bisection. And more !!!
 
-**Contributors:** _none listed_
+**Contributors:** [@woodwardtw](https://github.com/woodwardtw)

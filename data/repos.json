@@ -2,7 +2,7 @@
   "org": "Demo-Math-Journal",
   "title": "Demo Math Journal",
   "description": "I'm a journal on mathematical methods and their applications.",
-  "builtAt": "2026-10-02T13:51:16.782Z",
+  "builtAt": "2026-10-02T15:34:27.622Z",
   "repos": [
     {
       "name": "adaptive-quadrature",
@@ -42,12 +42,19 @@
       "displayTitle": "Newton Raphson Lab",
       "htmlUrl": "https://github.com/Demo-Math-Journal/newton-raphson-lab",
       "description": null,
-      "summary": "Root-finding methods and their convergence behavior, compared side by side: Newton-Raphson, secant, and bisection.",
-      "contributors": [],
+      "summary": "Root-finding methods and their convergence behavior, compared side by side: Newton-Raphson, secant, and bisection. And more !!!",
+      "contributors": [
+        {
+          "login": "woodwardtw",
+          "htmlUrl": "https://github.com/woodwardtw",
+          "avatarUrl": "https://avatars.githubusercontent.com/u/5863137?v=4",
+          "name": "Tom Woodward"
+        }
+      ],
       "contributorsOverflow": false,
       "isFork": false,
       "isArchived": false,
-      "updatedAt": "2026-09-14T19:26:15Z",
+      "updatedAt": "2026-10-02T15:32:05Z",
       "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/newton-raphson-lab/master/pdf/title.pdf"
     }
   ]
