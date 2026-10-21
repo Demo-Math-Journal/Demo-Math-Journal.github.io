@@ -2,8 +2,9 @@
 
 This repository builds and publishes an index of every repository in the
 Demo-Math-Journal organization. This file explains how it works and how to
-set it up. Do not edit README.md or index.html directly — a workflow
-overwrites both on every run.
+set it up. Do not edit README.md or data/repos.json directly — a workflow
+overwrites both on every run. index.html, assets/, and site.json are
+hand-maintained and safe to edit.
 
 ## How it works
 
@@ -16,9 +17,25 @@ overwrites both on every run.
    the entry shows "No description available."
 4. For each repository, the script reads the contributor list and removes
    bot accounts and `twoodwardMIDD`.
-5. The script writes three files: `README.md`, `index.html`, and
-   `data/repos.json`. If any of them changed, the workflow commits and
-   pushes the update.
+5. The script writes two files: `data/repos.json` (the data the website
+   reads) and `README.md` (the same index, as shown on GitHub). If either
+   changed, the workflow commits and pushes the update.
+6. `index.html` is a static page. When someone visits it, `assets/index.js`
+   fetches `data/repos.json` and renders the repo cards, filter, and math
+   in the browser. Visitors never call the GitHub API, so there are no
+   rate limits to worry about.
+
+## Changing the page
+
+Edit `index.html`, `assets/index.js` (card layout and filtering),
+`assets/pdf-reader.js` (PDF pane), or `assets/style.css` directly and
+push. Changes go live as soon as GitHub Pages redeploys — no rebuild
+needed. To change the site title or description, edit `site.json`; it is
+copied into `data/repos.json` on the next build. (The fallback title in
+`index.html` is only shown if JavaScript is off.)
+
+`data/repos.json` is also a stable endpoint other pages can use:
+`https://demo-math-journal.github.io/data/repos.json`.
 
 ## One-time setup
 
@@ -75,6 +92,26 @@ is in UTC. For example, `'0 12 * * *'` runs once at 12:00 UTC every day.
 You can always trigger a build by hand from the Actions tab regardless of
 the schedule.
 
+## Grouping by issue and section
+
+The page groups repositories using their GitHub topics:
+
+- A topic starting with `issue-` puts the repository under that issue
+  (`issue-3` → "Issue 3"). Issues are listed newest first, compared
+  numerically, so `issue-10` comes before `issue-9`.
+- Within an issue, a topic starting with `section-` puts the repository
+  under that section (`section-root-finding` → "Root Finding"). Sections
+  are listed alphabetically.
+- A repository with no `issue-` topic is listed under "Other
+  repositories" at the bottom; one with no `section-` topic is listed
+  under "Other" within its issue. An issue with no sections at all shows
+  its repositories directly, without section headings.
+- If a repository has more than one `issue-` (or `section-`) topic, only
+  the first in alphabetical order is used.
+
+Topics are read during the nightly build, so a topic change shows up after
+the next run (or a manual run of the workflow).
+
 ## Known limitations
 
 - **README parsing is heuristic, not a full Markdown parser.** The script
@@ -109,5 +146,12 @@ GITHUB_ORG=Demo-Math-Journal \
 node scripts/build-index.mjs
 ```
 
-This writes README.md, index.html, and data/repos.json in place, so you
-can preview the result before committing.
+This writes README.md and data/repos.json in place. To preview the page,
+serve the folder over HTTP (opening index.html as a file won't work,
+because browsers block `fetch()` from `file://` pages):
+
+```
+python3 -m http.server 8000
+```
+
+then open `http://localhost:8000/`.

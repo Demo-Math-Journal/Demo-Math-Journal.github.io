@@ -1,6 +1,7 @@
 #!/usr/bin/env node
-// Builds the Demo-Math-Journal organization index: README.md, index.html,
-// and data/repos.json. Run by .github/workflows/build-index.yml on a
+// Builds the Demo-Math-Journal organization index data: data/repos.json
+// (read by index.html in the browser) and README.md (the index as shown on
+// GitHub). Run by .github/workflows/build-index.yml on a
 // schedule, or manually with `node scripts/build-index.mjs`.
 //
 // Requires a GITHUB_TOKEN with read access to public repositories (the
@@ -247,15 +248,6 @@ function extractFirstParagraph(markdown) {
     : text;
 }
 
-function escapeHtml(str) {
-  return str
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 function humanize(text) {
   return text
     .split(/[-_]/)
@@ -328,6 +320,9 @@ async function buildRepoEntries() {
       isFork: repo.fork,
       isArchived: repo.archived,
       updatedAt: repo.pushed_at,
+      // The org repo listing includes topics; index.js groups cards by the
+      // `issue-*` and `section-*` ones.
+      topics: Array.isArray(repo.topics) ? repo.topics : [],
       pdfUrl,
     });
   }
@@ -385,176 +380,6 @@ function formatContributorsMarkdown(entry) {
 }
 
 // ---------------------------------------------------------------------
-// Render index.html
-// ---------------------------------------------------------------------
-
-function formatContributorsHtml(entry) {
-  if (entry.contributors.length === 0) {
-    return entry.contributorsOverflow
-      ? '<span class="text-body-secondary">too many to list</span>'
-      : '<span class="text-body-secondary">none listed</span>';
-  }
-  const links = entry.contributors
-    .map((c) => {
-      const label = escapeHtml(c.name || `@${c.login}`);
-      const avatar = c.avatarUrl
-        ? `<img src="${escapeHtml(c.avatarUrl)}&s=48" width="20" height="20" class="rounded-circle" alt="" loading="lazy">`
-        : '';
-      return `<a href="${escapeHtml(c.htmlUrl)}" class="d-inline-flex align-items-center gap-1 text-decoration-none">${avatar}<span>${label}</span></a>`;
-    })
-    .join(', ');
-  return entry.contributorsOverflow
-    ? `${links}, <span class="text-body-secondary">and more</span>`
-    : links;
-}
-
-function renderRepoCard(entry) {
-  const searchKey = escapeHtml(
-    `${entry.displayTitle} ${entry.name} ${entry.description || ''}`.toLowerCase()
-  );
-  const summary = entry.summary
-    ? escapeHtml(entry.summary)
-    : '<span class="text-body-secondary">No description available.</span>';
-  const badges = [
-    entry.isArchived ? '<span class="badge text-bg-secondary">Archived</span>' : '',
-    entry.isFork ? '<span class="badge text-bg-secondary">Fork</span>' : '',
-  ]
-    .filter(Boolean)
-    .join(' ');
-  const pdfButton = entry.pdfUrl
-    ? `
-              <button
-                type="button"
-                class="btn btn-sm btn-outline-primary read-pdf-btn"
-                data-pdf-url="${escapeHtml(entry.pdfUrl)}"
-                data-pdf-title="${escapeHtml(entry.displayTitle)}"
-              >Read the PDF</button>`
-    : '';
-
-  return `      <div class="col-12 repo-card" data-repo-search="${searchKey}">
-        <article class="card h-100">
-          <div class="card-body d-flex flex-column">
-            <h2 class="h5 card-title">
-              ${escapeHtml(entry.displayTitle)}
-              ${badges}
-            </h2>
-            <p class="card-text flex-grow-1">${summary}</p>
-            <p class="card-text small mb-0">
-              <span class="fw-semibold">Author(s):</span>
-              ${formatContributorsHtml(entry)}
-            </p>
-            <div class="mt-2 d-flex flex-wrap gap-2">
-              <a
-                href="${escapeHtml(entry.htmlUrl)}"
-                class="btn btn-sm btn-outline-secondary"
-                target="_blank"
-                rel="noopener noreferrer"
-              >View on GitHub</a>${pdfButton}
-            </div>
-          </div>
-        </article>
-      </div>`;
-}
-
-function renderHtml(entries, builtAt, site) {
-  const cards = entries.map(renderRepoCard).join('\n');
-  const repoWorkflowUrl = process.env.GITHUB_REPOSITORY
-    ? `${process.env.GITHUB_SERVER_URL || 'https://github.com'}/${process.env.GITHUB_REPOSITORY}/actions`
-    : `https://github.com/${ORG}/${ORG}.github.io/actions`;
-
-  return `<!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>${escapeHtml(site.title)} — Repository Index</title>
-  <meta name="description" content="${escapeHtml(site.description || `An index of repositories in the ${ORG} GitHub organization, rebuilt automatically.`)}">
-  <script>
-    // Set light/dark theme before first paint, based on the visitor's OS
-    // preference, using Bootstrap 5.3's built-in color modes.
-    (function () {
-      try {
-        var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-        document.documentElement.setAttribute('data-bs-theme', prefersDark ? 'dark' : 'light');
-      } catch (e) {}
-    })();
-  </script>
-  <link
-    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-    rel="stylesheet"
-    integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
-    crossorigin="anonymous">
-  <link rel="stylesheet" href="assets/style.css">
-  <script>
-    // Repo summaries may contain LaTeX (e.g. $...$ or $$...$$), pulled
-    // verbatim from each repo's README.
-    window.MathJax = {
-      tex: {
-        inlineMath: [['$', '$'], ['\\\\(', '\\\\)']],
-        displayMath: [['$$', '$$'], ['\\\\[', '\\\\]']],
-      },
-    };
-  </script>
-  <script
-    src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"
-    defer></script>
-</head>
-<body>
-  <a class="visually-hidden-focusable skip-link" href="#main-content">Skip to main content</a>
-
-  <header class="border-bottom py-4 mb-4">
-    <div class="container">
-      <h1 class="h3 mb-1">${escapeHtml(site.title)}</h1>
-      ${site.description ? `<p>${escapeHtml(site.description)}</p>\n      ` : ''}<p class="text-body-secondary mb-0">Repository index, rebuilt automatically. Last built: <time datetime="${builtAt}">${builtAt}</time>.</p>
-    </div>
-  </header>
-
-  <main id="main-content" class="container pb-5">
-    <div class="row g-4 align-items-start">
-      <div class="col-12" id="index-pane">
-        <div class="row mb-4">
-          <div class="col-12 col-md-6">
-            <label for="repo-search" class="form-label">Filter repositories</label>
-            <input type="search" id="repo-search" class="form-control" placeholder="Type a repo name or keyword…">
-            <div id="repo-search-status" class="form-text" aria-live="polite">Showing ${entries.length} of ${entries.length} repositories.</div>
-          </div>
-        </div>
-
-        <div class="row g-4" id="repo-list">
-${cards}
-        </div>
-
-        <p id="no-results" class="text-body-secondary mt-4 d-none" role="status">No repositories match your filter.</p>
-      </div>
-
-      <div class="col-12 d-none" id="pdf-pane">
-        <div class="pdf-pane-inner">
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h2 class="h6 mb-0" id="pdf-pane-title">Reading PDF</h2>
-            <button type="button" class="btn-close" id="pdf-pane-close" aria-label="Close PDF viewer"></button>
-          </div>
-          <div id="pdf-pane-status" class="text-body-secondary small mb-2 d-none" role="status"></div>
-          <div id="pdf-pages" class="pdf-pages"></div>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <footer class="border-top py-4 mt-5">
-    <div class="container small text-body-secondary">
-      Built automatically by <a href="${escapeHtml(repoWorkflowUrl)}">GitHub Actions</a> from the
-      <a href="https://github.com/${escapeHtml(ORG)}">${escapeHtml(ORG)}</a> organization.
-    </div>
-  </footer>
-
-  <script src="assets/filter.js" defer></script>
-  <script type="module" src="assets/pdf-reader.js"></script>
-</body>
-</html>
-`;
-}
-
-// ---------------------------------------------------------------------
 // Main
 // ---------------------------------------------------------------------
 
@@ -565,7 +390,6 @@ async function main() {
 
   await mkdir(path.join(ROOT, 'data'), { recursive: true });
   await writeFile(path.join(ROOT, 'README.md'), renderReadme(entries, builtAt, site), 'utf-8');
-  await writeFile(path.join(ROOT, 'index.html'), renderHtml(entries, builtAt, site), 'utf-8');
   await writeFile(
     path.join(ROOT, 'data', 'repos.json'),
     JSON.stringify(
@@ -576,7 +400,7 @@ async function main() {
     'utf-8'
   );
 
-  console.log(`Wrote README.md, index.html, and data/repos.json for ${entries.length} repositories.`);
+  console.log(`Wrote README.md and data/repos.json for ${entries.length} repositories.`);
 }
 
 main().catch((err) => {
