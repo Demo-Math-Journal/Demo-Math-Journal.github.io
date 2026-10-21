@@ -2,7 +2,7 @@
   "org": "Demo-Math-Journal",
   "title": "Demo Math Journal",
   "description": "I'm a journal on mathematical methods and their applications.",
-  "builtAt": "2026-10-21T13:26:07.358Z",
+  "builtAt": "2026-10-21T22:55:32.981Z",
   "repos": [
     {
       "name": "adaptive-quadrature",
@@ -22,6 +22,14 @@
       "isFork": false,
       "isArchived": false,
       "updatedAt": "2026-10-20T12:55:38Z",
+      "topics": [
+        "adaptive-method",
+        "issue-2026",
+        "numerical-analysis",
+        "numerical-integration",
+        "quadrature",
+        "section-managing-energy"
+      ],
       "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/adaptive-quadrature/master/pdf/title.pdf"
     },
     {
@@ -35,6 +43,14 @@
       "isFork": false,
       "isArchived": false,
       "updatedAt": "2026-09-17T15:03:24Z",
+      "topics": [
+        "integration",
+        "issue-2026",
+        "monte-carlo",
+        "numerical-analysis",
+        "section-other-main-category",
+        "stochastic-methods"
+      ],
       "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/monte-carlo-integrator/master/pdf/title.pdf"
     },
     {
@@ -55,6 +71,14 @@
       "isFork": false,
       "isArchived": false,
       "updatedAt": "2026-10-02T15:32:05Z",
+      "topics": [
+        "issue-2027",
+        "newton-raphson",
+        "nonlinear-equations",
+        "numerical-analysis",
+        "root-finding",
+        "section-managing-energy"
+      ],
       "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/newton-raphson-lab/master/pdf/title.pdf"
     }
   ]
