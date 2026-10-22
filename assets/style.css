@@ -37,7 +37,6 @@ input:focus-visible {
   padding: 0.5rem 1rem;
   background: var(--bs-body-bg);
   border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
 }
 
 .repo-card.d-none {
@@ -58,7 +57,6 @@ input:focus-visible {
   display: block;
   width: 100%;
   height: auto;
-  border-radius: var(--bs-border-radius);
   position: sticky;
   top: 1rem;
 }
@@ -89,7 +87,6 @@ input:focus-visible {
    (text color is picked in assets/index.js for contrast). */
 .section-heading--colored {
   padding: 0.4rem 0.75rem;
-  border-radius: var(--bs-border-radius);
 }
 
 .card-title .badge {
@@ -102,7 +99,7 @@ header {
 }
 
 body {
-  background-color: #c8dced;
+  background-color: #fff;
 }
 
 /* Keep display-math typeset by MathJax from overflowing narrow cards. */
@@ -141,7 +138,6 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   border: 1px solid var(--bs-border-color);
-  border-radius: var(--bs-border-radius);
   padding: 0.5rem;
   background: var(--bs-secondary-bg);
 }
