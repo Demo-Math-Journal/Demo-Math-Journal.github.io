@@ -174,6 +174,35 @@ async function getPdfUrl(owner, repo, defaultBranch) {
   }
 }
 
+// Returns raw-content URLs for a repo's author bio, from a top-level `bio/`
+// directory: { markdownUrl, imageUrl }, either of which may be null (the
+// first `.md` file and the first image found). Returns null if there's no
+// `bio/` directory or it holds neither. index.js fetches the markdown when
+// a visitor opens the bio modal.
+async function getBio(owner, repo, defaultBranch) {
+  const url = `${API_BASE}/repos/${owner}/${repo}/contents/bio`;
+  try {
+    const res = await ghRequest(url);
+    if (res.status === 404) return null;
+    if (!res.ok) {
+      console.warn(`  bio/ listing failed for ${owner}/${repo}: ${res.status}`);
+      return null;
+    }
+    const listing = await res.json();
+    if (!Array.isArray(listing)) return null; // bio/ exists but isn't a directory
+    const files = listing.filter((item) => item.type === 'file');
+    const markdown = files.find((item) => /\.(md|markdown)$/i.test(item.name));
+    const image = files.find((item) => /\.(png|jpe?g|gif|webp|svg|avif)$/i.test(item.name));
+    if (!markdown && !image) return null;
+    const rawUrl = (item) =>
+      item ? `https://raw.githubusercontent.com/${owner}/${repo}/${defaultBranch}/bio/${item.name}` : null;
+    return { markdownUrl: rawUrl(markdown), imageUrl: rawUrl(image) };
+  } catch (err) {
+    console.warn(`  bio/ listing errored for ${owner}/${repo}: ${err.message}`);
+    return null;
+  }
+}
+
 // ---------------------------------------------------------------------
 // README parsing: pull the first real paragraph out of a README's
 // markdown, skipping front matter, headings, rules, tables, and
@@ -301,10 +330,11 @@ async function buildRepoEntries() {
   const entries = [];
   for (const repo of rawRepos) {
     console.log(`Processing ${repo.full_name}...`);
-    const [readmeText, contributorInfo, pdfUrl] = await Promise.all([
+    const [readmeText, contributorInfo, pdfUrl, bio] = await Promise.all([
       getReadmeText(repo.owner.login, repo.name),
       getContributors(repo.owner.login, repo.name),
       getPdfUrl(repo.owner.login, repo.name, repo.default_branch),
+      getBio(repo.owner.login, repo.name, repo.default_branch),
     ]);
 
     const firstParagraph = extractFirstParagraph(readmeText);
@@ -324,6 +354,7 @@ async function buildRepoEntries() {
       // `issue-*` and `section-*` ones.
       topics: Array.isArray(repo.topics) ? repo.topics : [],
       pdfUrl,
+      bio,
     });
   }
   return entries;

@@ -167,6 +167,23 @@
     </div>
   </main>
 
+  <!-- Author bio modal, opened from a card's author link when the repo has
+       a bio/ directory (see openBio in assets/index.js). -->
+  <dialog id="bio-modal" class="bio-modal" aria-labelledby="bio-modal-title">
+    <div class="bio-modal-inner">
+      <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+        <h1 class="h2 mb-0" id="bio-modal-title"></h1>
+        <button type="button" class="btn-close" id="bio-modal-close" aria-label="Close bio"></button>
+      </div>
+      <div class="row g-4">
+        <div class="col-12 col-md-8 bio-content" id="bio-modal-body"></div>
+        <div class="col-12 col-md-4" id="bio-modal-image-col">
+          <img id="bio-modal-image" class="bio-image" src="" alt="">
+        </div>
+      </div>
+    </div>
+  </dialog>
+
   <footer class="border-top py-4 mt-5">
     <div class="container small text-body-secondary">
       Built automatically by <a href="https://github.com/Demo-Math-Journal/Demo-Math-Journal.github.io/actions">GitHub Actions</a> from the
@@ -174,6 +191,9 @@
     </div>
   </footer>
 
+  <!-- Markdown rendering and sanitizing for the author bio modal. -->
+  <script src="https://cdn.jsdelivr.net/npm/marked@12.0.2/marked.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/dompurify@3.1.6/dist/purify.min.js" defer></script>
   <script src="assets/index.js" defer></script>
   <script type="module" src="assets/pdf-reader.js"></script>
 </body>

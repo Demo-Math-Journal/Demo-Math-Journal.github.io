@@ -1,7 +1,9 @@
 // Renders the repository index from data/repos.json, which the nightly
 // workflow rebuilds (see scripts/build-index.mjs and SETUP.md), and adds a
 // live filter on top. Cards are built as DOM nodes with textContent, never
-// innerHTML, so README text can't inject markup.
+// innerHTML, so README text can't inject markup. The one exception is the
+// author bio modal, whose markdown is rendered by marked and sanitized by
+// DOMPurify before it's inserted.
 //
 // The PDF pane (assets/pdf-reader.js) listens for clicks on #repo-list, so
 // it works with these cards without any coordination.
@@ -21,6 +23,12 @@
   var siteTitle = document.getElementById('site-title');
   var siteDescription = document.getElementById('site-description');
   var builtAtEl = document.getElementById('built-at');
+  var bioModal = document.getElementById('bio-modal');
+  var bioTitle = document.getElementById('bio-modal-title');
+  var bioBody = document.getElementById('bio-modal-body');
+  var bioImageCol = document.getElementById('bio-modal-image-col');
+  var bioImage = document.getElementById('bio-modal-image');
+  var bioRequestToken = 0;
 
   if (!repoList) return;
 
@@ -74,8 +82,7 @@
 
     repo.contributors.forEach(function (c, i) {
       if (i > 0) line.appendChild(document.createTextNode(', '));
-      line.appendChild(
-        el('a', { href: c.htmlUrl, className: 'd-inline-flex align-items-center gap-1 text-decoration-none' }, [
+      var link = el('a', { href: c.htmlUrl, className: 'd-inline-flex align-items-center gap-1 text-decoration-none' }, [
           c.avatarUrl
             ? el('img', {
                 src: avatarSrc(c.avatarUrl),
@@ -87,14 +94,82 @@
               })
             : null,
           el('span', {}, [c.name || '@' + c.login]),
-        ])
-      );
+        ]);
+      // With a bio/ directory, the link opens the bio modal instead of the
+      // GitHub profile (which stays as the href for middle-click etc.).
+      if (repo.bio && bioModal) {
+        link.setAttribute('aria-haspopup', 'dialog');
+        link.addEventListener('click', function (e) {
+          e.preventDefault();
+          openBio(c.name || '@' + c.login, repo.bio);
+        });
+      }
+      line.appendChild(link);
     });
     if (repo.contributorsOverflow) {
       line.appendChild(document.createTextNode(', '));
       line.appendChild(el('span', { className: 'text-body-secondary' }, ['and more']));
     }
     return line;
+  }
+
+  // ---------------------------------------------------------------------
+  // Author bio modal: the author's name as the h1, the repo's bio/*.md
+  // rendered on the left, and the bio/ image on the right.
+  // ---------------------------------------------------------------------
+
+  function setBioMessage(text) {
+    bioBody.replaceChildren(el('p', { className: 'text-body-secondary' }, [text]));
+  }
+
+  function openBio(name, bio) {
+    var token = ++bioRequestToken;
+    bioTitle.textContent = name;
+    bioImageCol.classList.toggle('d-none', !bio.imageUrl);
+    bioBody.classList.toggle('col-md-8', !!bio.imageUrl);
+    if (bio.imageUrl) {
+      bioImage.src = bio.imageUrl;
+      bioImage.alt = 'Photo of ' + name;
+    } else {
+      bioImage.removeAttribute('src');
+    }
+    setBioMessage(bio.markdownUrl ? 'Loading bio…' : 'No bio available.');
+    if (!bioModal.open) bioModal.showModal();
+    if (!bio.markdownUrl) return;
+
+    fetch(bio.markdownUrl, { cache: 'no-cache' })
+      .then(function (res) {
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        return res.text();
+      })
+      .then(function (markdown) {
+        if (token !== bioRequestToken) return;
+        if (!markdown.trim()) {
+          setBioMessage('No bio available.');
+          return;
+        }
+        if (!window.marked || !window.DOMPurify) throw new Error('markdown renderer not loaded');
+        bioBody.innerHTML = window.DOMPurify.sanitize(window.marked.parse(markdown));
+        var mj = window.MathJax;
+        if (mj && mj.typesetPromise) {
+          mj.typesetPromise([bioBody]).catch(function (err) { console.warn('MathJax typeset failed:', err); });
+        }
+      })
+      .catch(function (err) {
+        if (token !== bioRequestToken) return;
+        setBioMessage('Could not load this bio (' + err.message + ').');
+      });
+  }
+
+  if (bioModal) {
+    document.getElementById('bio-modal-close').addEventListener('click', function () {
+      bioModal.close();
+    });
+    // A click on the dialog element itself (not its contents) is a click on
+    // the backdrop.
+    bioModal.addEventListener('click', function (e) {
+      if (e.target === bioModal) bioModal.close();
+    });
   }
 
   function renderCard(repo, headingLevel) {

@@ -30,7 +30,11 @@
         "quadrature",
         "section-managing-energy"
       ],
-      "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/adaptive-quadrature/master/pdf/title.pdf"
+      "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/adaptive-quadrature/master/pdf/title.pdf",
+      "bio": {
+        "markdownUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/adaptive-quadrature/master/bio/bio.md",
+        "imageUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/adaptive-quadrature/master/bio/basic.png"
+      }
     },
     {
       "name": "monte-carlo-integrator",
@@ -58,7 +62,11 @@
         "section-other-main-category",
         "stochastic-methods"
       ],
-      "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/monte-carlo-integrator/master/pdf/title.pdf"
+      "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/monte-carlo-integrator/master/pdf/title.pdf",
+      "bio": {
+        "markdownUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/monte-carlo-integrator/master/bio/bio.md",
+        "imageUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/monte-carlo-integrator/master/bio/basic.png"
+      }
     },
     {
       "name": "newton-raphson-lab",
@@ -86,7 +94,11 @@
         "root-finding",
         "section-managing-energy"
       ],
-      "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/newton-raphson-lab/master/pdf/title.pdf"
+      "pdfUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/newton-raphson-lab/master/pdf/title.pdf",
+      "bio": {
+        "markdownUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/newton-raphson-lab/master/bio/bio.md",
+        "imageUrl": "https://raw.githubusercontent.com/Demo-Math-Journal/newton-raphson-lab/master/bio/basic.png"
+      }
     }
   ]
 }

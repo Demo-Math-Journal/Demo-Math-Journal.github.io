@@ -157,3 +157,42 @@ body {
 .pdf-page:last-child {
   margin-bottom: 0;
 }
+
+/* Author bio modal (see openBio in assets/index.js). A native <dialog>,
+   so focus trapping and Escape-to-close come from the browser. */
+.bio-modal {
+  width: min(48rem, calc(100vw - 2rem));
+  max-height: calc(100vh - 2rem);
+  padding: 0;
+  border: 1px solid var(--bs-border-color);
+  border-radius: var(--bs-border-radius-lg);
+  background: var(--bs-body-bg);
+  color: var(--bs-body-color);
+  box-shadow: 0 0.5rem 2rem rgba(0, 0, 0, 0.3);
+}
+
+/* Padding lives here, not on the <dialog>, so a click on the dialog
+   element itself is always a backdrop click. */
+.bio-modal-inner {
+  padding: 1.5rem;
+}
+
+.bio-modal::backdrop {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.bio-content > :last-child {
+  margin-bottom: 0;
+}
+
+.bio-content img {
+  max-width: 100%;
+  height: auto;
+}
+
+.bio-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--bs-border-radius);
+}
