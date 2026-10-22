@@ -7,7 +7,7 @@ I'm a journal on mathematical methods and their applications.
 
 An automatically generated index of every repository in the [Demo-Math-Journal](https://github.com/Demo-Math-Journal) organization. Rebuilt nightly by [GitHub Actions](.github/workflows/build-index.yml). See [SETUP.md](SETUP.md) for how it works.
 
-_Last built: 2026-10-21T22:55:32.981Z_
+_Last built: 2026-10-22T10:04:49.478Z_
 
 ## [Adaptive Quadrature](https://github.com/Demo-Math-Journal/adaptive-quadrature)
 
@@ -19,7 +19,7 @@ Error-controlled numerical integration: adaptive Simpson's rule versus a fixed-g
 
 Stochastic estimation of definite integrals and of pi, with an experiment tracking how the error actually shrinks as the sample count grows. $$\left( \sum{k=1}^n ak bk \right)^2 \leq \left( \sum{k=1}^n ak^2 \right) \left( \sum{k=1}^n b_k^2 \right)$$
 
-**Contributors:** _none listed_
+**Contributors:** [@woodwardtw](https://github.com/woodwardtw)
 
 ## [Newton Raphson Lab](https://github.com/Demo-Math-Journal/newton-raphson-lab)
 
