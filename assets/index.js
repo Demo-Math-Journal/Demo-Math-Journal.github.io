@@ -9,6 +9,8 @@
   'use strict';
 
   var DATA_URL = 'data/repos.json';
+  // Hand-edited per-issue settings, e.g. { issues: { "2026": { image: "…" } } }.
+  var ISSUES_URL = 'data/issues.json';
   var ISSUE_PREFIX = 'issue-';
   var SECTION_PREFIX = 'section-';
 
@@ -23,6 +25,8 @@
   if (!repoList) return;
 
   var cards = [];
+  var issueSettings = {};
+  var sectionSettings = {};
 
   // Small element helper: el('a', { href: '…', className: '…' }, [children]).
   function el(tag, props, children) {
@@ -210,19 +214,44 @@
       });
   }
 
+  // Black or white, whichever has more contrast against the "#rrggbb"
+  // background (WCAG relative luminance).
+  function readableTextColor(hex) {
+    var lum = [1, 3, 5]
+      .map(function (i) {
+        var c = parseInt(hex.slice(i, i + 2), 16) / 255;
+        return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+      })
+      .reduce(function (sum, c, i) { return sum + c * [0.2126, 0.7152, 0.0722][i]; }, 0);
+    return (lum + 0.05) / 0.05 > 1.05 / (lum + 0.05) ? '#000' : '#fff';
+  }
+
   function slugId(prefix, key) {
     return prefix + (key == null ? 'other' : key.replace(/[^a-z0-9-]/g, '-'));
   }
 
   // Renders one issue group. An issue whose repos all lack a section topic
   // gets no section headings, so its cards sit directly under the issue.
+  // If data/issues.json gives the issue an image, it sits to the right of
+  // the cards.
   function renderIssue(issue) {
     var issueId = slugId('issue-', issue.key);
     var showSections = !(issue.sections.length === 1 && issue.sections[0].key == null);
+    var settings = (issue.key != null && issueSettings[issue.key]) || {};
 
+    var content = el('div', { className: 'col-12' });
     var group = el('section', { className: 'col-12 repo-group issue-group', 'aria-labelledby': issueId }, [
       el('h2', { className: 'h4 issue-heading', id: issueId }, [issueLabel(issue.key)]),
+      el('div', { className: 'row g-4' }, [
+        content,
+        settings.image
+          ? el('div', { className: 'col-12 col-md-4 issue-image-col' }, [
+              el('img', { src: settings.image, className: 'issue-image', alt: '', loading: 'lazy' }),
+            ])
+          : null,
+      ]),
     ]);
+    if (settings.image) content.classList.add('col-md-8');
 
     issue.sections.forEach(function (section) {
       var list = el('div', { className: 'row g-4' }, section.repos.map(function (repo) {
@@ -232,15 +261,19 @@
       }));
 
       if (!showSections) {
-        group.appendChild(list);
+        content.appendChild(list);
         return;
       }
       var sectionId = issueId + '--' + slugId('section-', section.key);
-      group.appendChild(
-        el('section', { className: 'repo-group section-group', 'aria-labelledby': sectionId }, [
-          el('h3', { className: 'h6 section-heading', id: sectionId }, [sectionLabel(section.key)]),
-          list,
-        ])
+      var heading = el('h3', { className: 'h6 section-heading', id: sectionId }, [sectionLabel(section.key)]);
+      var color = section.key != null && sectionSettings[section.key] && sectionSettings[section.key].color;
+      if (color && /^#[0-9a-f]{6}$/i.test(color)) {
+        heading.classList.add('section-heading--colored');
+        heading.style.backgroundColor = color;
+        heading.style.color = readableTextColor(color);
+      }
+      content.appendChild(
+        el('section', { className: 'repo-group section-group', 'aria-labelledby': sectionId }, [heading, list])
       );
     });
     return group;
@@ -313,12 +346,29 @@
 
   // `no-cache` revalidates with the server each visit, so a fresh nightly
   // build shows up immediately instead of waiting out the browser cache.
+  // issues.json is optional: if it's missing or broken, the index still
+  // renders, just without issue images.
+  var issuesLoaded = fetch(ISSUES_URL, { cache: 'no-cache' })
+    .then(function (res) {
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      return res.json();
+    })
+    .then(function (data) {
+      issueSettings = (data && data.issues) || {};
+      sectionSettings = (data && data.sections) || {};
+    })
+    .catch(function (err) {
+      console.warn('Could not load ' + ISSUES_URL + ':', err);
+    });
+
   fetch(DATA_URL, { cache: 'no-cache' })
     .then(function (res) {
       if (!res.ok) throw new Error('HTTP ' + res.status);
       return res.json();
     })
-    .then(renderSite)
+    .then(function (data) {
+      return issuesLoaded.then(function () { renderSite(data); });
+    })
     .catch(function (err) {
       console.error('Could not load ' + DATA_URL + ':', err);
       if (status) status.textContent = 'Could not load the repository list (' + err.message + ').';

@@ -52,6 +52,28 @@ input:focus-visible {
   border-bottom: 2px solid var(--bs-border-color);
 }
 
+/* Per-issue image from data/issues.json, to the right of the issue's
+   cards. Sticky so it stays beside the cards while they scroll. */
+.issue-image {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--bs-border-radius);
+  position: sticky;
+  top: 1rem;
+}
+
+/* When the PDF pane is open the index is too narrow for two columns, so
+   the cards take the full width and the image is hidden. */
+@media (min-width: 992px) {
+  #index-pane.col-lg-5 .issue-image-col {
+    display: none;
+  }
+  #index-pane.col-lg-5 .issue-group > .row > .col-md-8 {
+    width: 100%;
+  }
+}
+
 .section-group + .section-group {
   margin-top: 1.5rem;
 }
@@ -61,6 +83,13 @@ input:focus-visible {
   letter-spacing: 0.05em;
   color: var(--bs-secondary-color);
   margin-bottom: 0.75rem;
+}
+
+/* Section color from data/issues.json, shown as a band behind the heading
+   (text color is picked in assets/index.js for contrast). */
+.section-heading--colored {
+  padding: 0.4rem 0.75rem;
+  border-radius: var(--bs-border-radius);
 }
 
 .card-title .badge {
