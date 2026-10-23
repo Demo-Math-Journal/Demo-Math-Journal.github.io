@@ -27,6 +27,8 @@
   const bioModal = document.getElementById('bio-modal');
   const bioTitle = document.getElementById('bio-modal-title');
   const bioBody = document.getElementById('bio-modal-body');
+  const bioByline = document.getElementById('bio-modal-byline');
+  const bioContent = document.getElementById('bio-modal-content');
   const bioImageCol = document.getElementById('bio-modal-image-col');
   const bioImage = document.getElementById('bio-modal-image');
   let bioRequestToken = 0;
@@ -54,6 +56,27 @@
       node.append(child);
     }
     return node;
+  }
+
+  // Label plus a bordered cell holding a small diagonal arrow, for the
+  // minimal outline buttons in an expanded repo row.
+  function outlineBtnContent(label) {
+    const svgNs = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNs, 'svg');
+    svg.setAttribute('width', '9');
+    svg.setAttribute('height', '9');
+    svg.setAttribute('viewBox', '0 0 9 9');
+    svg.setAttribute('aria-hidden', 'true');
+    const path = document.createElementNS(svgNs, 'path');
+    path.setAttribute(
+      'd',
+      'M1.27308 8.6948L6.64773 3.31482L6.63707 7.34714H8.38423V0.305237H1.34766L1.337 2.04174H5.37464L0 7.42171L1.27308 8.6948Z'
+    );
+    svg.append(path);
+    return [
+      el('span', { className: 'outline-btn-label' }, [label]),
+      el('span', { className: 'outline-btn-icon' }, [svg]),
+    ];
   }
 
   function avatarSrc(url) {
@@ -90,7 +113,6 @@
               src: avatarSrc(c.avatarUrl),
               width: 20,
               height: 20,
-              className: 'rounded-circle',
               alt: '',
               loading: 'lazy',
             })
@@ -103,7 +125,7 @@
         link.setAttribute('aria-haspopup', 'dialog');
         link.addEventListener('click', (e) => {
           e.preventDefault();
-          openBio(displayName, repo.bio);
+          openBio(displayName, repo.bio, repo.displayTitle);
         });
       }
       line.append(link);
@@ -123,11 +145,12 @@
     bioBody.replaceChildren(el('p', { className: 'text-body-secondary' }, [text]));
   }
 
-  async function openBio(name, bio) {
+  async function openBio(name, bio, repoTitle) {
     const token = ++bioRequestToken;
     bioTitle.textContent = name;
     bioImageCol.classList.toggle('d-none', !bio.imageUrl);
-    bioBody.classList.toggle('col-md-8', Boolean(bio.imageUrl));
+    bioContent.classList.toggle('col-md-7', Boolean(bio.imageUrl));
+    bioByline.textContent = repoTitle ? `Author of ${repoTitle}` : '';
     if (bio.imageUrl) {
       bioImage.src = bio.imageUrl;
       bioImage.alt = `Photo of ${name}`;
@@ -198,17 +221,17 @@
       repo.pdfUrl
         ? el('button', {
             type: 'button',
-            className: 'btn btn-sm btn-primary read-pdf-btn',
+            className: 'outline-btn read-pdf-btn',
             'data-pdf-url': repo.pdfUrl,
             'data-pdf-title': repo.displayTitle,
-          }, ['Read the PDF'])
+          }, outlineBtnContent('Read the PDF'))
         : null,
       el('a', {
         href: repo.htmlUrl,
-        className: 'btn btn-sm btn-outline-secondary',
+        className: 'outline-btn',
         target: '_blank',
         rel: 'noopener noreferrer',
-      }, ['View on GitHub']),
+      }, outlineBtnContent('View on GitHub')),
     ]);
 
     const panel = el('div', { className: 'repo-panel', id: panelId, hidden: true }, [

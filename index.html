@@ -78,8 +78,8 @@
             </h2>
             <p class="card-text flex-grow-1">Error-controlled numerical integration: adaptive Simpson&#39;s rule versus a fixed-grid Simpson&#39;s rule, compared at matched function-evaluation budgets.</p>
             <p class="card-text small mb-0">
-              <span class="fw-semibold">Author(s):</span>
-              <a href="https://github.com/woodwardtw" class="d-inline-flex align-items-center gap-1 text-decoration-none"><img src="https://avatars.githubusercontent.com/u/5863137?v=4&s=48" width="20" height="20" class="rounded-circle" alt="" loading="lazy"><span>Tom Woodward</span></a>
+              <!-- <span class="fw-semibold">Author(s):</span> -->
+              <a href="https://github.com/woodwardtw" class="d-inline-flex align-items-center gap-1 text-decoration-none"><img src="https://avatars.githubusercontent.com/u/5863137?v=4&s=48" width="20" height="20" alt="" loading="lazy"><span>Tom Woodward</span></a>
             </p>
             <div class="mt-2 d-flex flex-wrap gap-2">
               <a
@@ -178,14 +178,16 @@
        a bio/ directory (see openBio in assets/index.js). -->
   <dialog id="bio-modal" class="bio-modal" aria-labelledby="bio-modal-title">
     <div class="bio-modal-inner">
-      <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
-        <h1 class="h2 mb-0" id="bio-modal-title"></h1>
-        <button type="button" class="btn-close" id="bio-modal-close" aria-label="Close bio"></button>
-      </div>
-      <div class="row g-4">
-        <div class="col-12 col-md-8 bio-content" id="bio-modal-body"></div>
-        <div class="col-12 col-md-4" id="bio-modal-image-col">
+      <button type="button" class="btn-close bio-modal-close" id="bio-modal-close" aria-label="Close bio"></button>
+      <div class="row g-4 g-md-5">
+        <div class="col-12 col-md-5" id="bio-modal-image-col">
           <img id="bio-modal-image" class="bio-image" src="" alt="">
+        </div>
+        <div class="col-12 col-md-7" id="bio-modal-content">
+          <h1 class="bio-title" id="bio-modal-title"></h1>
+          <p class="bio-byline" id="bio-modal-byline"></p>
+          <hr class="issue-rule">
+          <div class="bio-content" id="bio-modal-body"></div>
         </div>
       </div>
     </div>

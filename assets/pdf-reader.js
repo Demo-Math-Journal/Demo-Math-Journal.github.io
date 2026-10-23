@@ -44,6 +44,16 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
     if (selectedCard) selectedCard.classList.add('is-reading');
   }
 
+  // Brings the repo row whose PDF was just opened to the top of the
+  // viewport. Waits a frame so it lands in the narrowed, pane-open layout.
+  const scrollCardToTop = (card) => {
+    if (!card) return;
+    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    requestAnimationFrame(() => {
+      card.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+    });
+  };
+
   function openPane() {
     main.classList.remove('container');
     main.classList.add('container-fluid');
@@ -142,8 +152,10 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
   repoList.addEventListener('click', function (e) {
     var btn = e.target.closest('.read-pdf-btn');
     if (btn) {
-      selectCard(btn.closest('.repo-card'));
+      const card = btn.closest('.repo-card');
+      selectCard(card);
       openPdf(btn.getAttribute('data-pdf-url'), btn.getAttribute('data-pdf-title'));
+      scrollCardToTop(card);
       return;
     }
     if (e.target.closest('a, button, input, label')) return;
