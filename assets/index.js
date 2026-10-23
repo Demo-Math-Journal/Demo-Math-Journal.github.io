@@ -20,6 +20,7 @@
   const repoList = document.getElementById('repo-list');
   const input = document.getElementById('repo-search');
   const status = document.getElementById('repo-search-status');
+  const issueNav = document.getElementById('issue-nav');
   const noResults = document.getElementById('no-results');
   const siteTitle = document.getElementById('site-title');
   const siteDescription = document.getElementById('site-description');
@@ -90,15 +91,12 @@
   }
 
   function renderContributors(repo) {
-    const line = el('p', { className: 'card-text small mb-0' }, [
-      el('span', { className: 'fw-semibold' }, ['Author(s):']),
-      ' ',
-    ]);
+    const line = el('p', { className: 'card-text small mb-0' });
 
     if (!repo.contributors?.length) {
       line.append(
         el('span', { className: 'text-body-secondary' }, [
-          repo.contributorsOverflow ? 'too many to list' : 'none listed',
+          repo.contributorsOverflow ? 'Too many authors to list' : 'No authors listed',
         ])
       );
       return line;
@@ -383,6 +381,16 @@
     return group;
   }
 
+  // One menu-bar link per issue, jumping to its heading.
+  function renderIssueNav(issues) {
+    if (!issueNav) return;
+    issueNav.replaceChildren(...issues.map((issue) =>
+      el('li', {}, [
+        el('a', { href: `#${slugId('issue-', issue.key)}`, className: 'site-nav-link' }, [issueLabel(issue.key)]),
+      ])
+    ));
+  }
+
   function applyFilter() {
     const query = input ? input.value.trim().toLowerCase() : '';
     let visibleCount = 0;
@@ -396,6 +404,11 @@
     // Hide any issue or section whose cards are all filtered out.
     for (const group of repoList.querySelectorAll('.repo-group')) {
       group.classList.toggle('d-none', !group.querySelector('.repo-card:not(.d-none)'));
+    }
+    // ...and its menu-bar link.
+    for (const link of issueNav?.querySelectorAll('a') ?? []) {
+      const group = document.querySelector(link.hash)?.closest('.issue-group');
+      link.parentElement.classList.toggle('d-none', Boolean(group?.classList.contains('d-none')));
     }
 
     if (status) {
@@ -432,7 +445,9 @@
 
     const repos = Array.isArray(data.repos) ? data.repos : [];
     cards = [];
-    repoList.replaceChildren(...groupRepos(repos).map(renderIssue));
+    const issues = groupRepos(repos);
+    repoList.replaceChildren(...issues.map(renderIssue));
+    renderIssueNav(issues);
 
     if (repos.length === 0 && status) {
       status.textContent = 'No repositories found.';

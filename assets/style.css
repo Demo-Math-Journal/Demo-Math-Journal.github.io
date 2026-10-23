@@ -65,6 +65,84 @@ body:has(#pdf-pane:not(.d-none)) .page-width {
   max-width: 1320px;
 }
 
+/* Menu bar directly under the header, drawn with the same 1px lines as
+   the repo rows: a cell per issue link on the left, search in the right
+   cell. On phones the search takes its own row below the links. */
+.site-nav {
+  display: flex;
+  flex-wrap: wrap;
+  border: 1px solid var(--bs-body-color);
+  font-family: var(--font-display);
+}
+
+.site-nav-search {
+  flex: 1 1 100%;
+  border-top: 1px solid var(--bs-body-color);
+}
+
+.site-nav-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border: 0;
+  background: none;
+  color: var(--bs-body-color);
+  font: inherit;
+  font-size: 0.9375rem;
+}
+
+.site-nav-input::placeholder {
+  font-style: italic;
+  color: var(--bs-secondary-color);
+}
+
+input.site-nav-input:focus-visible {
+  outline-offset: -3px;
+}
+
+.site-nav-links {
+  flex: 1 1 auto;
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.site-nav-links > li {
+  border-right: 1px solid var(--bs-body-color);
+}
+
+.site-nav-link {
+  display: block;
+  padding: 0.5rem 0.9rem;
+  color: var(--bs-body-color);
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.site-nav-link:hover {
+  color: var(--bs-body-color);
+  text-decoration: underline;
+}
+
+a.site-nav-link:focus-visible {
+  outline-offset: -3px;
+}
+
+@media (min-width: 768px) {
+  .site-nav-search {
+    flex: 0 1 18rem;
+    border-top: 0;
+    border-left: 1px solid var(--bs-body-color);
+  }
+}
+
+/* Room above an issue heading reached from the menu bar. */
+.issue-heading {
+  scroll-margin-top: 1.5rem;
+}
+
 /* Issue groups, laid out like a book listing (see renderIssue in
    assets/index.js): image on the left, title block and index on the
    right. */
@@ -100,7 +178,7 @@ body:has(#pdf-pane:not(.d-none)) .page-width {
     width: 100%;
   }
   /* Room below the index so even the last row can scroll to the top
-     beside the PDF (see scrollCardToTop in assets/pdf-reader.js). */
+     beside the PDF (see the .read-pdf-btn click handler in assets/pdf-reader.js). */
   #index-pane.col-lg-5 {
     padding-bottom: calc(100vh - 8rem);
   }
@@ -109,7 +187,7 @@ body:has(#pdf-pane:not(.d-none)) .page-width {
 .issue-heading {
   font-family: var(--font-display);
   font-weight: 700;
-  font-size: 1.85rem;
+  font-size: 2.85rem;
   line-height: 1.2;
   letter-spacing: -0.015em;
   margin-bottom: 0.15rem;
@@ -149,7 +227,7 @@ body:has(#pdf-pane:not(.d-none)) .page-width {
   font-family: var(--font-display);
   font-style: italic;
   font-weight: 400;
-  font-size: 1.1rem;
+  font-size: 1.7rem;
   margin-bottom: 0.6rem;
 }
 
@@ -170,7 +248,7 @@ body:has(#pdf-pane:not(.d-none)) .page-width {
 }
 
 /* Breathing room when a row is scrolled to the top on opening its PDF
-   (see scrollCardToTop in assets/pdf-reader.js). */
+   (see the .read-pdf-btn click handler in assets/pdf-reader.js). */
 .repo-card {
   scroll-margin-top: 1rem;
 }
@@ -332,6 +410,51 @@ body {
    assets/pdf-reader.js), so at most one row ever carries this class. */
 .repo-card.is-reading {
   box-shadow: inset 4px 0 0 var(--bs-primary);
+}
+
+/* Transitions when the PDF pane opens and closes (see withTransition in
+   assets/pdf-reader.js). The pane slides in from the right and back out;
+   the row being read keeps the default glide to its new position; the
+   rest of the page cross-fades. Skipped entirely under reduced motion. */
+#pdf-pane {
+  view-transition-name: pdf-pane;
+}
+
+::view-transition-group(*) {
+  animation-duration: 0.55s;
+  animation-timing-function: cubic-bezier(0.2, 0, 0, 1);
+}
+
+::view-transition-old(pdf-pane) {
+  animation: 0.45s cubic-bezier(0.4, 0, 1, 1) both pdf-pane-out;
+}
+
+::view-transition-new(pdf-pane) {
+  animation: 0.55s cubic-bezier(0, 0, 0.2, 1) both pdf-pane-in;
+}
+
+/* Moving from one open PDF to another: swap the pane in place, no slide
+   (.pdf-swap is set by withTransition). */
+.pdf-swap::view-transition-old(pdf-pane) {
+  display: none;
+}
+
+.pdf-swap::view-transition-new(pdf-pane) {
+  animation: none;
+}
+
+@keyframes pdf-pane-in {
+  from {
+    opacity: 0;
+    transform: translateX(3rem);
+  }
+}
+
+@keyframes pdf-pane-out {
+  to {
+    opacity: 0;
+    transform: translateX(3rem);
+  }
 }
 
 /* Right-hand PDF reading pane, opened by a repo card's "Read the PDF"

@@ -44,15 +44,26 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
     if (selectedCard) selectedCard.classList.add('is-reading');
   }
 
-  // Brings the repo row whose PDF was just opened to the top of the
-  // viewport. Waits a frame so it lands in the narrowed, pane-open layout.
-  const scrollCardToTop = (card) => {
-    if (!card) return;
+  // Opening and closing the pane reflow the whole page (one column to two
+  // and back), so where the browser supports it, `update` runs as a view
+  // transition: the PDF pane slides in or out, `card` (the row being read)
+  // glides to its new spot, and everything else cross-fades (see the
+  // ::view-transition rules in assets/style.css). With `swap` (moving from
+  // one open PDF to another), the pane is swapped in place instead of
+  // sliding. Without support, or under reduced motion, `update` just runs.
+  function withTransition(card, update, swap = false) {
     const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    requestAnimationFrame(() => {
-      card.scrollIntoView({ block: 'start', behavior: reduceMotion ? 'auto' : 'smooth' });
+    if (!document.startViewTransition || reduceMotion) {
+      update();
+      return;
+    }
+    if (card) card.style.viewTransitionName = 'reading-card';
+    document.documentElement.classList.toggle('pdf-swap', swap);
+    document.startViewTransition(update).finished.finally(() => {
+      if (card) card.style.viewTransitionName = '';
+      document.documentElement.classList.remove('pdf-swap');
     });
-  };
+  }
 
   function openPane() {
     main.classList.remove('container');
@@ -62,7 +73,16 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
     pdfPane.classList.add('col-lg-7');
   }
 
+  // Closes the pane, keeping the row that was being read in view.
   function closePane() {
+    const card = selectedCard;
+    withTransition(card, () => {
+      applyClosePane();
+      card?.scrollIntoView({ block: 'center', behavior: 'instant' });
+    });
+  }
+
+  function applyClosePane() {
     main.classList.remove('container-fluid');
     main.classList.add('container');
     indexPane.classList.remove('col-lg-5');
@@ -152,10 +172,14 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
   repoList.addEventListener('click', function (e) {
     var btn = e.target.closest('.read-pdf-btn');
     if (btn) {
+      // Opens the PDF and brings its row to the top of the viewport, in the
+      // narrowed pane-open layout.
       const card = btn.closest('.repo-card');
-      selectCard(card);
-      openPdf(btn.getAttribute('data-pdf-url'), btn.getAttribute('data-pdf-title'));
-      scrollCardToTop(card);
+      withTransition(card, () => {
+        selectCard(card);
+        openPdf(btn.getAttribute('data-pdf-url'), btn.getAttribute('data-pdf-title'));
+        card?.scrollIntoView({ block: 'start', behavior: 'instant' });
+      }, isPaneOpen());
       return;
     }
     if (e.target.closest('a, button, input, label')) return;

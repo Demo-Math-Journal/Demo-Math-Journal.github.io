@@ -6,7 +6,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Middlebury Applied Math Journal — Repository Index</title>
+  <title>The Middlebury Journal of Applied Mathematics — Repository Index</title>
   <meta name="description" content="I&#39;m a journal on mathematical methods and their applications.">
   <script>
     // Set light/dark theme before first paint, based on the visitor's OS
@@ -45,11 +45,11 @@
 <body>
   <a class="visually-hidden-focusable skip-link" href="#main-content">Skip to main content</a>
 
-  <header class="border-bottom py-4 mb-4">
+  <header class="pt-4 pb-3">
     <div class="container page-width">
       <img src="assets/images/midd-shield.svg" width="auto" height="78" class="me-3" alt="Middlebury College" loading="lazy">
       <div class="d-inline-block align-middle me-3">
-        <h1 class="h3 mb-1 d-inline-block site-title">Middlebury Applied Math Journal</h1>
+        <h1 class="h3 mb-1 d-inline-block site-title">The Middlebury Journal of Applied Mathematics</h1>
               <p>A senior student research journal on mathematical methods and their applications.</p>      
       </div>
      
@@ -57,17 +57,22 @@
     </div>
   </header>
 
+  <!-- Menu bar: one link per issue on the left (filled in by
+       renderIssueNav in assets/index.js), search on the right. -->
+  <nav class="container page-width mb-5" aria-label="Issues">
+    <div class="site-nav">
+      <ul class="site-nav-links" id="issue-nav"></ul>
+      <div class="site-nav-search" role="search">
+        <label for="repo-search" class="visually-hidden">Search articles</label>
+        <input type="search" id="repo-search" class="site-nav-input" placeholder="Search…" disabled>
+      </div>
+    </div>
+    <div id="repo-search-status" class="form-text" aria-live="polite">Loading repositories…</div>
+  </nav>
+
   <main id="main-content" class="container page-width pb-5">
     <div class="row g-4 g-lg-5 align-items-start">
       <div class="col-12" id="index-pane">
-        <div class="row mb-5">
-          <div class="col-12 col-md-6">
-            <label for="repo-search" class="form-label">Search</label>
-            <input type="search" id="repo-search" class="form-control" placeholder="Type a repo name or keyword…" disabled>
-            <div id="repo-search-status" class="form-text" aria-live="polite">Loading repositories…</div>
-          </div>
-        </div>
-
         <div class="row g-4" id="repo-list">
       <div class="col-12 repo-card" data-repo-search="adaptive quadrature adaptive-quadrature ">
         <article class="card h-100">
@@ -78,7 +83,6 @@
             </h2>
             <p class="card-text flex-grow-1">Error-controlled numerical integration: adaptive Simpson&#39;s rule versus a fixed-grid Simpson&#39;s rule, compared at matched function-evaluation budgets.</p>
             <p class="card-text small mb-0">
-              <!-- <span class="fw-semibold">Author(s):</span> -->
               <a href="https://github.com/woodwardtw" class="d-inline-flex align-items-center gap-1 text-decoration-none"><img src="https://avatars.githubusercontent.com/u/5863137?v=4&s=48" width="20" height="20" alt="" loading="lazy"><span>Tom Woodward</span></a>
             </p>
             <div class="mt-2 d-flex flex-wrap gap-2">
@@ -107,8 +111,7 @@
             </h2>
             <p class="card-text flex-grow-1">Stochastic estimation of definite integrals and of pi, with an experiment tracking how the error actually shrinks as the sample count grows. $$\left( \sum{k=1}^n ak bk \right)^2 \leq \left( \sum{k=1}^n ak^2 \right) \left( \sum{k=1}^n b_k^2 \right)$$</p>
             <p class="card-text small mb-0">
-              <span class="fw-semibold">Author(s):</span>
-              <span class="text-body-secondary">none listed</span>
+              <span class="text-body-secondary">No authors listed</span>
             </p>
             <div class="mt-2 d-flex flex-wrap gap-2">
               <a
@@ -136,8 +139,7 @@
             </h2>
             <p class="card-text flex-grow-1">Root-finding methods and their convergence behavior, compared side by side: Newton-Raphson, secant, and bisection.</p>
             <p class="card-text small mb-0">
-              <span class="fw-semibold">Author(s):</span>
-              <span class="text-body-secondary">none listed</span>
+              <span class="text-body-secondary">No authors listed</span>
             </p>
             <div class="mt-2 d-flex flex-wrap gap-2">
               <a
