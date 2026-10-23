@@ -11,6 +11,9 @@
 //
 // Clicking anywhere on the index — outside a link, button, or the search
 // input — closes the pane and restores the full-width view.
+//
+// The open PDF is mirrored in the URL as ?read=<repo name>, so a shared
+// link reopens the same view once assets/index.js has rendered the rows.
 import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/6.3.289/pdf.min.mjs';
 
 pdfjsLib.GlobalWorkerOptions.workerSrc =
@@ -80,6 +83,51 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
       applyClosePane();
       card?.scrollIntoView({ block: 'center', behavior: 'instant' });
     });
+    setReadParam(null);
+  }
+
+  const READ_PARAM = 'read';
+
+  // Sets or clears ?read= without adding a history entry, keeping any
+  // other params and the hash.
+  function setReadParam(repoName) {
+    const url = new URL(window.location.href);
+    if (repoName) url.searchParams.set(READ_PARAM, repoName);
+    else url.searchParams.delete(READ_PARAM);
+    history.replaceState(history.state, '', url);
+  }
+
+  // Opens the PDF of the repo row `card` and brings the row to the top of
+  // the viewport, in the narrowed pane-open layout. `animate: false` skips
+  // the view transition.
+  function openCardPdf(card, { animate = true } = {}) {
+    const btn = card?.querySelector('.read-pdf-btn');
+    if (!btn) return;
+    const update = () => {
+      selectCard(card);
+      openPdf(btn.getAttribute('data-pdf-url'), btn.getAttribute('data-pdf-title'));
+      card.scrollIntoView({ block: 'start', behavior: 'instant' });
+    };
+    if (animate) withTransition(card, update, isPaneOpen());
+    else update();
+    setReadParam(card.dataset.repoName);
+  }
+
+  // Reopens the view a shared ?read= link points to: expands that repo's
+  // row and opens its PDF. Drops the param if no such repo has a PDF. Not
+  // animated: on a first, uncached visit the transition would run while
+  // fonts and images are still arriving, so the page would look broken
+  // until it settled.
+  function openFromUrl() {
+    const repoName = new URL(window.location.href).searchParams.get(READ_PARAM);
+    if (!repoName) return;
+    const card = repoList.querySelector(`.repo-card[data-repo-name="${CSS.escape(repoName)}"]`);
+    if (!card?.querySelector('.read-pdf-btn')) {
+      setReadParam(null);
+      return;
+    }
+    card.querySelector('.repo-toggle[aria-expanded="false"]')?.click();
+    openCardPdf(card, { animate: false });
   }
 
   function applyClosePane() {
@@ -172,19 +220,16 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
   repoList.addEventListener('click', function (e) {
     var btn = e.target.closest('.read-pdf-btn');
     if (btn) {
-      // Opens the PDF and brings its row to the top of the viewport, in the
-      // narrowed pane-open layout.
-      const card = btn.closest('.repo-card');
-      withTransition(card, () => {
-        selectCard(card);
-        openPdf(btn.getAttribute('data-pdf-url'), btn.getAttribute('data-pdf-title'));
-        card?.scrollIntoView({ block: 'start', behavior: 'instant' });
-      }, isPaneOpen());
+      openCardPdf(btn.closest('.repo-card'));
       return;
     }
     if (e.target.closest('a, button, input, label')) return;
     if (isPaneOpen()) closePane();
   });
 
-  if (closeButton) closeButton.addEventListener('click', closePane);
+  if (closeButton) closeButton.addEventListener('click', () => closePane());
+
+  // The rows usually render after this module runs, but handle either order.
+  if (repoList.querySelector('.repo-card[data-repo-name]')) openFromUrl();
+  else document.addEventListener('repos:rendered', openFromUrl, { once: true });
 })();

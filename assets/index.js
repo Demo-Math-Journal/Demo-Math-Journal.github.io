@@ -249,6 +249,7 @@
       el(`h${headingLevel}`, { className: 'repo-heading' }, [toggle]),
       panel,
     ]);
+    card.dataset.repoName = repo.name;
     card.dataset.repoSearch = [
       repo.displayTitle,
       repo.name,
@@ -456,6 +457,8 @@
     }
     if (input) input.disabled = false;
     typesetMath();
+    // Lets assets/pdf-reader.js open a PDF named in the URL (?read=…).
+    document.dispatchEvent(new CustomEvent('repos:rendered'));
   }
 
   async function fetchJson(url) {
