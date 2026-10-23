@@ -2,7 +2,7 @@
   "org": "Demo-Math-Journal",
   "title": "Demo Math Journal",
   "description": "I'm a journal on mathematical methods and their applications.",
-  "builtAt": "2026-10-22T12:57:46.380Z",
+  "builtAt": "2026-10-23T12:37:05.973Z",
   "repos": [
     {
       "name": "adaptive-quadrature",
@@ -21,7 +21,7 @@
       "contributorsOverflow": false,
       "isFork": false,
       "isArchived": false,
-      "updatedAt": "2026-10-22T09:46:27Z",
+      "updatedAt": "2026-10-22T13:01:56Z",
       "topics": [
         "adaptive-method",
         "issue-2026",
