@@ -11,7 +11,8 @@
   'use strict';
 
   const DATA_URL = 'data/repos.json';
-  // Hand-edited per-issue settings, e.g. { issues: { "2026": { image: "…" } } }.
+  // Hand-edited per-issue settings, e.g.
+  // { issues: { "2026": { image: "…", description: "…" } } }.
   const ISSUES_URL = 'data/issues.json';
   const ISSUE_PREFIX = 'issue-';
   const SECTION_PREFIX = 'section-';
@@ -164,48 +165,75 @@
     });
   }
 
+  // Each repo is a compact row in its section's index: a toggle button
+  // with the title and author names. Expanding it reveals the README
+  // summary, the author line (with bio link), and the PDF/GitHub actions.
   function renderCard(repo, headingLevel) {
-    const title = el(`h${headingLevel}`, { className: 'h5 card-title' }, [`${repo.displayTitle} `]);
-    if (repo.isArchived) title.append(el('span', { className: 'badge text-bg-secondary' }, ['Archived']));
-    if (repo.isFork) title.append(el('span', { className: 'badge text-bg-secondary' }, ['Fork']));
+    const panelId = `repo-panel-${repo.name.replace(/[^a-z0-9-]/gi, '-')}`;
+
+    const badges = [];
+    if (repo.isArchived) badges.push(el('span', { className: 'badge text-bg-secondary' }, ['Archived']));
+    if (repo.isFork) badges.push(el('span', { className: 'badge text-bg-secondary' }, ['Fork']));
+
+    const authorNames = (repo.contributors || []).map((c) => c.name || `@${c.login}`).join(', ');
+
+    const toggle = el('button', {
+      type: 'button',
+      className: 'repo-toggle',
+      'aria-expanded': 'false',
+      'aria-controls': panelId,
+    }, [
+      el('span', { className: 'repo-toggle-title' }, [repo.displayTitle, ...badges.flatMap((b) => [' ', b])]),
+      authorNames ? el('span', { className: 'repo-toggle-authors' }, [authorNames]) : null,
+      el('span', { className: 'repo-toggle-icon', 'aria-hidden': 'true' }, [el('span')]),
+    ]);
 
     const summary = repo.summary
-      ? el('p', { className: 'card-text flex-grow-1' }, [repo.summary])
-      : el('p', { className: 'card-text flex-grow-1' }, [
+      ? el('p', { className: 'card-text' }, [repo.summary])
+      : el('p', { className: 'card-text' }, [
           el('span', { className: 'text-body-secondary' }, ['No description available.']),
         ]);
 
-    const actions = el('div', { className: 'mt-2 d-flex flex-wrap gap-2' }, [
+    const actions = el('div', { className: 'mt-3 d-flex flex-wrap gap-2' }, [
+      repo.pdfUrl
+        ? el('button', {
+            type: 'button',
+            className: 'btn btn-sm btn-primary read-pdf-btn',
+            'data-pdf-url': repo.pdfUrl,
+            'data-pdf-title': repo.displayTitle,
+          }, ['Read the PDF'])
+        : null,
       el('a', {
         href: repo.htmlUrl,
         className: 'btn btn-sm btn-outline-secondary',
         target: '_blank',
         rel: 'noopener noreferrer',
       }, ['View on GitHub']),
-      repo.pdfUrl
-        ? el('button', {
-            type: 'button',
-            className: 'btn btn-sm btn-outline-primary read-pdf-btn',
-            'data-pdf-url': repo.pdfUrl,
-            'data-pdf-title': repo.displayTitle,
-          }, ['Read the PDF'])
-        : null,
     ]);
 
-    const card = el('div', { className: 'col-12 repo-card' }, [
-      el('article', { className: 'card h-100' }, [
-        el('div', { className: 'card-body d-flex flex-column' }, [
-          title,
-          summary,
-          renderContributors(repo),
-          actions,
-        ]),
-      ]),
+    const panel = el('div', { className: 'repo-panel', id: panelId, hidden: true }, [
+      summary,
+      renderContributors(repo),
+      actions,
+    ]);
+
+    toggle.addEventListener('click', () => {
+      const expanded = toggle.getAttribute('aria-expanded') === 'true';
+      toggle.setAttribute('aria-expanded', String(!expanded));
+      panel.hidden = expanded;
+      card.classList.toggle('is-expanded', !expanded);
+    });
+
+    const card = el('div', { className: 'repo-card' }, [
+      el(`h${headingLevel}`, { className: 'repo-heading' }, [toggle]),
+      panel,
     ]);
     card.dataset.repoSearch = [
       repo.displayTitle,
       repo.name,
       repo.description || '',
+      repo.summary || '',
+      authorNames,
       issueLabel(topicSuffix(repo, ISSUE_PREFIX)),
       sectionLabel(topicSuffix(repo, SECTION_PREFIX)),
     ].join(' ').toLowerCase();
@@ -276,45 +304,39 @@
       });
   }
 
-  // Black or white, whichever has more contrast against the "#rrggbb"
-  // background (WCAG relative luminance).
-  function readableTextColor(hex) {
-    const lum = [1, 3, 5]
-      .map((i) => {
-        const c = parseInt(hex.slice(i, i + 2), 16) / 255;
-        return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
-      })
-      .reduce((sum, c, i) => sum + c * [0.2126, 0.7152, 0.0722][i], 0);
-    return (lum + 0.05) / 0.05 > 1.05 / (lum + 0.05) ? '#000' : '#fff';
-  }
-
   const slugId = (prefix, key) => prefix + (key == null ? 'other' : key.replace(/[^a-z0-9-]/g, '-'));
 
-  // Renders one issue group. An issue whose repos all lack a section topic
-  // gets no section headings, so its cards sit directly under the issue.
-  // If data/issues.json gives the issue an image, it sits to the right of
-  // the cards.
+  // Renders one issue group, laid out like a book page: the issue image (if
+  // data/issues.json gives one) on the left, and on the right the issue
+  // title, an article count, a short rule, the issue description, and the
+  // section indexes. An issue whose repos all lack a section topic gets no
+  // section headings, so its repo list sits directly under the description.
   function renderIssue(issue) {
     const issueId = slugId('issue-', issue.key);
     const showSections = !(issue.sections.length === 1 && issue.sections[0].key == null);
     const settings = (issue.key != null && issueSettings[issue.key]) || {};
+    const repoCount = issue.sections.reduce((n, section) => n + section.repos.length, 0);
 
-    const content = el('div', { className: 'col-12' });
+    const content = el('div', { className: 'col-12 issue-content' }, [
+      el('h2', { className: 'issue-heading', id: issueId }, [issueLabel(issue.key)]),
+      el('p', { className: 'issue-byline' }, [`${repoCount} ${repoCount === 1 ? 'article' : 'articles'}`]),
+      el('hr', { className: 'issue-rule' }),
+      settings.description ? el('p', { className: 'issue-description' }, [settings.description]) : null,
+    ]);
     const group = el('section', { className: 'col-12 repo-group issue-group', 'aria-labelledby': issueId }, [
-      el('h2', { className: 'h4 issue-heading', id: issueId }, [issueLabel(issue.key)]),
-      el('div', { className: 'row g-4' }, [
-        content,
+      el('div', { className: 'row g-4 g-md-5' }, [
         settings.image
-          ? el('div', { className: 'col-12 col-md-4 issue-image-col' }, [
+          ? el('div', { className: 'col-12 col-md-5 issue-image-col' }, [
               el('img', { src: settings.image, className: 'issue-image', alt: '', loading: 'lazy' }),
             ])
           : null,
+        content,
       ]),
     ]);
-    if (settings.image) content.classList.add('col-md-8');
+    if (settings.image) content.classList.add('col-md-7');
 
     for (const section of issue.sections) {
-      const list = el('div', { className: 'row g-4' }, section.repos.map((repo) => {
+      const list = el('div', { className: 'repo-index' }, section.repos.map((repo) => {
         const card = renderCard(repo, showSections ? 4 : 3);
         cards.push(card);
         return card;
@@ -325,12 +347,11 @@
         continue;
       }
       const sectionId = `${issueId}--${slugId('section-', section.key)}`;
-      const heading = el('h3', { className: 'h6 section-heading', id: sectionId }, [sectionLabel(section.key)]);
+      const heading = el('h3', { className: 'section-heading', id: sectionId }, [sectionLabel(section.key)]);
       const color = section.key != null && sectionSettings[section.key]?.color;
       if (color && /^#[0-9a-f]{6}$/i.test(color)) {
-        heading.classList.add('section-heading--colored');
-        heading.style.backgroundColor = color;
-        heading.style.color = readableTextColor(color);
+        heading.prepend(el('span', { className: 'section-swatch', 'aria-hidden': 'true' }));
+        heading.style.setProperty('--section-color', color);
       }
       content.append(
         el('section', { className: 'repo-group section-group', 'aria-labelledby': sectionId }, [heading, list])

@@ -7,6 +7,10 @@
  */
 
 :root {
+  /* Serif pairing in the spirit of Stripe Press: Newsreader for titles,
+     labels, and buttons; Source Serif 4 for running text. */
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --bs-body-font-family: 'Source Serif 4', Georgia, 'Times New Roman', serif;
   --bs-link-color: #0a58ca;
   --bs-link-hover-color: #084298;
   --bs-secondary-color: #495057;
@@ -43,53 +47,204 @@ input:focus-visible {
   display: none !important;
 }
 
-/* Issue and section headings that group the cards (see renderIssue in
-   assets/index.js). */
-.issue-heading {
-  padding-bottom: 0.5rem;
-  margin-bottom: 1rem;
-  border-bottom: 2px solid var(--bs-border-color);
+/* Narrow, book-page-like column. Widens while the PDF pane is open so
+   the index and the PDF still fit side by side. */
+.page-width {
+  max-width: 1040px;
 }
 
-/* Per-issue image from data/issues.json, to the right of the issue's
-   cards. Sticky so it stays beside the cards while they scroll. */
+body:has(#pdf-pane:not(.d-none)) .page-width {
+  max-width: 1320px;
+}
+
+/* Issue groups, laid out like a book listing (see renderIssue in
+   assets/index.js): image on the left, title block and index on the
+   right. */
+.issue-group + .issue-group {
+  margin-top: 5rem;
+}
+
+/* Sticky so it stays beside the index while it scrolls. */
 .issue-image {
   display: block;
   width: 100%;
   height: auto;
   position: sticky;
   top: 1rem;
+  box-shadow: 0 0.75rem 2rem rgba(0, 0, 0, 0.2);
+}
+
+/* On phones the image sits above the title, so keep it cover-sized. */
+@media (max-width: 767.98px) {
+  .issue-image {
+    position: static;
+    max-width: 14rem;
+  }
 }
 
 /* When the PDF pane is open the index is too narrow for two columns, so
-   the cards take the full width and the image is hidden. */
+   the index takes the full width and the image is hidden. */
 @media (min-width: 992px) {
   #index-pane.col-lg-5 .issue-image-col {
     display: none;
   }
-  #index-pane.col-lg-5 .issue-group > .row > .col-md-8 {
+  #index-pane.col-lg-5 .issue-content.col-md-7 {
     width: 100%;
   }
 }
 
+.issue-heading {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.85rem;
+  line-height: 1.2;
+  letter-spacing: -0.015em;
+  margin-bottom: 0.15rem;
+}
+
+.issue-byline {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.1rem;
+  margin-bottom: 0;
+}
+
+/* Short rule under the title block. */
+.issue-rule {
+  width: 2.75rem;
+  margin: 1.25rem 0 1.75rem;
+  border-top: 1px solid currentColor;
+  opacity: 0.6;
+}
+
+.issue-description {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  max-width: 34rem;
+  margin-bottom: 2.25rem;
+}
+
+/* Italic serif label above each section's index. */
 .section-group + .section-group {
-  margin-top: 1.5rem;
+  margin-top: 1.75rem;
 }
 
 .section-heading {
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--bs-secondary-color);
-  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 1.1rem;
+  margin-bottom: 0.6rem;
 }
 
-/* Section color from data/issues.json, shown as a band behind the heading
-   (text color is picked in assets/index.js for contrast). */
-.section-heading--colored {
-  padding: 0.4rem 0.75rem;
+/* Section color from data/issues.json, as a small swatch before the
+   label. */
+.section-swatch {
+  width: 0.6rem;
+  height: 0.6rem;
+  background: var(--section-color);
 }
 
-.card-title .badge {
+/* Condensed index of repos within a section (see renderCard in
+   assets/index.js): a stack of bordered rows, each a disclosure button
+   with an arrow cell on the right. */
+.repo-index {
+  max-width: 34rem;
+  border: 1px solid var(--bs-body-color);
+}
+
+.repo-card + .repo-card {
+  border-top: 1px solid var(--bs-body-color);
+}
+
+.repo-heading {
+  margin: 0;
+  font-size: 0.875rem;
+}
+
+.repo-toggle {
+  display: flex;
+  align-items: stretch;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--bs-body-color);
+  font-family: var(--font-display);
+  text-align: left;
+}
+
+.repo-toggle-title {
+  padding: 0.5rem 0 0.5rem 0.75rem;
+  font-weight: 600;
+}
+
+.repo-toggle-authors {
+  flex: 1 1 auto;
+  padding: 0.5rem 0.75rem 0.5rem 0.6rem;
+  font-weight: 400;
+}
+
+.repo-toggle:hover,
+.repo-card.is-expanded .repo-toggle {
+  background: var(--bs-tertiary-bg);
+}
+
+.repo-toggle:focus-visible {
+  outline: 3px solid #0a58ca;
+  outline-offset: -3px;
+}
+
+[data-bs-theme='dark'] .repo-toggle:focus-visible {
+  outline-color: #6ea8fe;
+}
+
+/* Right-hand arrow cell. The inner span is a small chevron that points
+   down when collapsed and up when expanded. */
+.repo-toggle-icon {
+  flex: 0 0 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-left: 1px solid var(--bs-body-color);
+}
+
+.repo-toggle-icon > span {
+  width: 0.4rem;
+  height: 0.4rem;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
+  transform: translateY(-0.1rem) rotate(45deg);
+  transition: transform 0.15s ease;
+}
+
+.repo-toggle[aria-expanded='true'] .repo-toggle-icon > span {
+  transform: translateY(0.1rem) rotate(-135deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .repo-toggle-icon > span {
+    transition: none;
+  }
+}
+
+.repo-panel {
+  padding: 0.75rem 0.75rem 1rem;
+  border-top: 1px solid var(--bs-border-color);
+  font-size: 0.875rem;
+  line-height: 1.6;
+}
+
+.repo-panel .btn {
+  font-family: var(--font-display);
+  font-weight: 600;
+  border-radius: 0;
+}
+
+.repo-toggle .badge {
   font-size: 0.65em;
   vertical-align: middle;
 }
@@ -102,19 +257,18 @@ body {
   background-color: #fff;
 }
 
-/* Keep display-math typeset by MathJax from overflowing narrow cards. */
-.card-text mjx-container[display="true"] {
+/* Keep display-math typeset by MathJax from overflowing narrow panels. */
+.repo-panel mjx-container[display="true"] {
   overflow-x: auto;
   overflow-y: hidden;
   max-width: 100%;
 }
 
-/* Highlights the repo card whose "Read the PDF" button opened the
+/* Highlights the repo row whose "Read the PDF" button opened the
    currently-open PDF pane. Cleared as soon as the pane closes (see
-   assets/pdf-reader.js), so at most one card ever carries this class. */
-.repo-card.is-reading .card {
-  border-color: var(--bs-primary);
-  box-shadow: 0 0 0 2px rgba(var(--bs-primary-rgb), 0.35);
+   assets/pdf-reader.js), so at most one row ever carries this class. */
+.repo-card.is-reading {
+  box-shadow: inset 4px 0 0 var(--bs-primary);
 }
 
 /* Right-hand PDF reading pane, opened by a repo card's "Read the PDF"
@@ -191,4 +345,10 @@ body {
   width: 100%;
   height: auto;
   border-radius: var(--bs-border-radius);
+}
+
+.site-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: -0.01em;
 }
