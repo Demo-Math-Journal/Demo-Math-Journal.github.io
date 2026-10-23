@@ -30,11 +30,14 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
   var pdfTitle = document.getElementById('pdf-pane-title');
   var pdfStatus = document.getElementById('pdf-pane-status');
   var closeButton = document.getElementById('pdf-pane-close');
+  const fullscreenButton = document.getElementById('pdf-pane-fullscreen');
 
   if (!main || !indexPane || !repoList || !pdfPane || !pagesEl) return;
 
   var requestToken = 0;
   var selectedCard = null;
+  let currentPdf = null; // the loaded pdf.js document, kept for re-rendering
+  let renderedWidth = 0; // the pane width the current pages were drawn at
 
   function isPaneOpen() {
     return !pdfPane.classList.contains('d-none');
@@ -79,6 +82,14 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
   // Closes the pane, keeping the row that was being read in view.
   function closePane() {
     const card = selectedCard;
+    // From full screen there's no index on screen to animate back to.
+    if (isFullscreen()) {
+      exitFullscreen();
+      applyClosePane();
+      card?.scrollIntoView({ block: 'center', behavior: 'instant' });
+      setReadParam(null);
+      return;
+    }
     withTransition(card, () => {
       applyClosePane();
       card?.scrollIntoView({ block: 'center', behavior: 'instant' });
@@ -128,6 +139,18 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
     }
     card.querySelector('.repo-toggle[aria-expanded="false"]')?.click();
     openCardPdf(card, { animate: false });
+
+    // The PDF view wins over any #issue-… anchor in the same link. The
+    // browser may still jump to that anchor once the page finishes loading,
+    // so drop it and bring the row back to the top after load.
+    if (window.location.hash) {
+      history.replaceState(history.state, '', window.location.pathname + window.location.search);
+    }
+    const keepCardInView = () => {
+      if (selectedCard === card) card.scrollIntoView({ block: 'start', behavior: 'instant' });
+    };
+    if (document.readyState === 'complete') requestAnimationFrame(keepCardInView);
+    else window.addEventListener('load', () => requestAnimationFrame(keepCardInView), { once: true });
   }
 
   function applyClosePane() {
@@ -137,6 +160,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
     pdfPane.classList.add('d-none');
     pdfPane.classList.remove('col-lg-7');
     requestToken++; // cancel any in-flight fetch/render for the pane we just closed
+    currentPdf = null;
     pagesEl.innerHTML = '';
     selectCard(null);
   }
@@ -151,7 +175,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
   // pane's current width, at the display's native pixel density.
   function renderPages(pdf, token) {
     var dpr = window.devicePixelRatio || 1;
-    var targetWidth = pagesEl.clientWidth || 600;
+    // Capped so pages stay a readable size in full screen.
+    var targetWidth = Math.min(pagesEl.clientWidth || 600, 1100);
+    renderedWidth = pagesEl.clientWidth;
     var pageNum = 1;
 
     function renderNextPage() {
@@ -167,8 +193,9 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
         canvas.className = 'pdf-page';
         canvas.width = viewport.width * dpr;
         canvas.height = viewport.height * dpr;
+        // Height follows width (see .pdf-page), so a page shrunk by
+        // max-width keeps its proportions until it is redrawn.
         canvas.style.width = viewport.width + 'px';
-        canvas.style.height = viewport.height + 'px';
         pagesEl.appendChild(canvas);
 
         return page
@@ -191,6 +218,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
     var token = ++requestToken;
     openPane();
     if (pdfTitle) pdfTitle.textContent = title || 'Reading PDF';
+    currentPdf = null;
     pagesEl.innerHTML = '';
     setStatus('Loading…');
 
@@ -205,6 +233,7 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
       })
       .then(function (pdf) {
         if (!pdf || token !== requestToken) return;
+        currentPdf = pdf;
         return renderPages(pdf, token);
       })
       .then(function () {
@@ -215,6 +244,75 @@ pdfjsLib.GlobalWorkerOptions.workerSrc =
         if (token !== requestToken) return;
         setStatus('Could not load this PDF (' + err.message + ').');
       });
+  }
+
+  // Redraws the loaded PDF at the pane's current width (after entering or
+  // leaving full screen, or resizing the window), then restores the
+  // reader's place in it.
+  function rerenderPages() {
+    if (!currentPdf) return;
+    const token = ++requestToken;
+    const position = pagesEl.scrollHeight ? pagesEl.scrollTop / pagesEl.scrollHeight : 0;
+    pagesEl.innerHTML = '';
+    renderPages(currentPdf, token).then(() => {
+      if (token === requestToken) pagesEl.scrollTop = position * pagesEl.scrollHeight;
+    });
+  }
+
+  // ---------------------------------------------------------------------
+  // Full screen: the Fullscreen API where available; otherwise (e.g. iPhone
+  // Safari) an .is-fullscreen class that pins the pane over the window.
+  // ---------------------------------------------------------------------
+
+  const canFullscreen = Boolean(pdfPane.requestFullscreen && document.fullscreenEnabled);
+
+  function isFullscreen() {
+    return document.fullscreenElement === pdfPane || pdfPane.classList.contains('is-fullscreen');
+  }
+
+  function syncFullscreen() {
+    const on = isFullscreen();
+    fullscreenButton.setAttribute('aria-pressed', String(on));
+    fullscreenButton.querySelector('.outline-btn-label').textContent = on ? 'Exit full screen' : 'Full screen';
+  }
+
+  function exitFullscreen() {
+    if (document.fullscreenElement === pdfPane) {
+      document.exitFullscreen();
+    } else if (pdfPane.classList.contains('is-fullscreen')) {
+      pdfPane.classList.remove('is-fullscreen');
+      syncFullscreen();
+    }
+  }
+
+  function toggleFullscreen() {
+    if (isFullscreen()) {
+      exitFullscreen();
+    } else if (canFullscreen) {
+      pdfPane.requestFullscreen().catch((err) => console.warn('Full screen failed:', err));
+    } else {
+      pdfPane.classList.add('is-fullscreen');
+      syncFullscreen();
+    }
+  }
+
+  // Redraw once the pane's width settles at a new size. Full screen and
+  // window resizes both land here; the browser may resize in steps.
+  let resizeTimer = 0;
+  new ResizeObserver(() => {
+    const width = pagesEl.clientWidth;
+    if (!currentPdf || !width || Math.abs(width - renderedWidth) < 2) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(rerenderPages, 150);
+  }).observe(pagesEl);
+
+  if (fullscreenButton) {
+    fullscreenButton.addEventListener('click', toggleFullscreen);
+    document.addEventListener('fullscreenchange', syncFullscreen);
+    // Escape for the fallback; the Fullscreen API handles its own.
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && pdfPane.classList.contains('is-fullscreen')) exitFullscreen();
+    });
   }
 
   repoList.addEventListener('click', function (e) {

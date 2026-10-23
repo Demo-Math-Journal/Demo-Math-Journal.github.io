@@ -290,6 +290,10 @@ a.site-nav-link:focus-visible {
   background: var(--bs-tertiary-bg);
 }
 
+.is-expanded h4.repo-heading {
+  border-bottom: 1px solid #000;
+}
+
 .repo-toggle:focus-visible {
   outline: 3px solid #0a58ca;
   outline-offset: -3px;
@@ -472,6 +476,23 @@ body {
   height: 100%;
 }
 
+/* Full-screen PDF pane (see toggleFullscreen in assets/pdf-reader.js):
+   the browser's full screen, or the .is-fullscreen fallback pinned over
+   the window. */
+#pdf-pane:fullscreen,
+#pdf-pane.is-fullscreen {
+  padding: 1rem 1.5rem;
+  background: var(--bs-body-bg);
+}
+
+#pdf-pane.is-fullscreen {
+  position: fixed;
+  inset: 0;
+  z-index: 1055;
+  width: 100% !important;
+  height: 100dvh;
+}
+
 /* Holds one <canvas> per rendered PDF page (see assets/pdf-reader.js). */
 .pdf-pages {
   flex: 1 1 auto;
@@ -485,6 +506,7 @@ body {
 .pdf-page {
   display: block;
   max-width: 100%;
+  height: auto;
   margin: 0 auto 0.75rem;
   background: #fff;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
