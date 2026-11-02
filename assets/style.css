@@ -665,7 +665,7 @@ body {
   width: 100%;
   max-width: 20rem;
   margin: 0;
-  border: 1px solid var(--bs-body-color);
+  /* border: 1px solid var(--bs-body-color); */
   background: #fff;
   cursor: crosshair;
 }
