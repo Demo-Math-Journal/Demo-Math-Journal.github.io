@@ -606,3 +606,108 @@ body {
   font-weight: 700;
   letter-spacing: -0.01em;
 }
+
+/* Masthead (see the header in index.html): shield and title block on the
+   left, the interactive surface plot from assets/math-logo.js on the
+   right, framed with the same 1px lines as the menu bar. Stacks on
+   phones. */
+.masthead-inner {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.masthead-lockup {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  min-width: 0;
+}
+
+.masthead-shield {
+  flex: none;
+  width: auto;
+  height: 4.5rem;
+}
+
+.masthead-text {
+  padding-left: 1.25rem;
+  border-left: 1px solid var(--bs-body-color);
+  min-width: 0;
+}
+
+.masthead-eyebrow {
+  margin-bottom: 0.35rem;
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--bs-secondary-color);
+}
+
+.masthead .site-title {
+  margin-bottom: 0.4rem;
+  font-size: clamp(1.6rem, 1.1rem + 2vw, 2.4rem);
+  line-height: 1.1;
+}
+
+.masthead-tagline {
+  margin-bottom: 0;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--bs-secondary-color);
+}
+
+.math-logo {
+  flex: none;
+  width: 100%;
+  max-width: 20rem;
+  margin: 0;
+  border: 1px solid var(--bs-body-color);
+  background: #fff;
+  cursor: crosshair;
+}
+
+.math-logo:focus-visible {
+  outline: 3px solid #0a58ca;
+  outline-offset: 2px;
+}
+
+.math-logo-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 340 / 205;
+  padding: 0.5rem 0.5rem 0;
+}
+
+.math-logo-caption {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0 0.75rem;
+  padding: 0.35rem 0.6rem;
+  border-top: 1px solid var(--bs-body-color);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  color: var(--bs-secondary-color);
+}
+
+.math-logo-readout {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+@media (min-width: 768px) {
+  .masthead-inner {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .math-logo {
+    width: 17.5rem;
+  }
+}
