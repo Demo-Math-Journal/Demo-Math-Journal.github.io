@@ -3,8 +3,8 @@
 This repository builds and publishes an index of every repository in the
 Demo-Math-Journal organization. This file explains how it works and how to
 set it up. Do not edit README.md or data/repos.json directly — a workflow
-overwrites both on every run. index.html, assets/, and site.json are
-hand-maintained and safe to edit.
+overwrites both on every run. index.html, assets/, site.json, and
+data/issues.json are hand-maintained and safe to edit.
 
 ## How it works
 
@@ -111,6 +111,10 @@ The page groups repositories using their GitHub topics:
 
 Topics are read during the nightly build, so a topic change shows up after
 the next run (or a manual run of the workflow).
+
+Each issue's image and description, and each section's color, are set in
+`data/issues.json`. See "Organizing issues and sections" in README.md for
+the format.
 
 ## Known limitations
 

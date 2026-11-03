@@ -5,7 +5,7 @@
 
 I'm a journal on mathematical methods and their applications.
 
-An automatically generated index of every repository in the [Demo-Math-Journal](https://github.com/Demo-Math-Journal) organization. Rebuilt nightly by [GitHub Actions](.github/workflows/build-index.yml). See [SETUP.md](SETUP.md) for how it works.
+An automatically generated index of every repository in the [Demo-Math-Journal](https://github.com/Demo-Math-Journal) organization. Rebuilt nightly by [GitHub Actions](.github/workflows/build-index.yml). See [SETUP.md](SETUP.md) for how it works, and [Organizing issues and sections](#organizing-issues-and-sections) to place an article in an issue.
 
 _Last built: 2026-11-02T17:03:45.448Z_
 
@@ -26,3 +26,65 @@ Stochastic estimation of definite integrals and of pi, with an experiment tracki
 Root-finding methods and their convergence behavior, compared side by side: Newton-Raphson, secant, and bisection. And more !!!
 
 **Contributors:** [@woodwardtw](https://github.com/woodwardtw)
+
+## Organizing issues and sections
+
+The website groups articles into issues, and issues into sections. Two things control this: **topics** on each article repository decide where it goes, and **`data/issues.json`** in this repository holds the settings for each issue and section.
+
+### Topics: placing an article
+
+To add topics to an article repository:
+
+1. Open the repository on GitHub.
+2. Select the gear icon next to **About** on the right side of the page.
+3. Type each topic into the **Topics** field, pressing Enter after each one.
+4. Select **Save changes**.
+
+Use these topics:
+
+| Topic | Example | Shown as |
+| --- | --- | --- |
+| `issue-<name>` | `issue-2026` | Issue 2026 |
+| `section-<name>` | `section-managing-energy` | Managing Energy |
+
+- Issues are listed newest first. Numbers are compared as numbers, so `issue-10` comes before `issue-9`.
+- Sections are listed alphabetically within their issue.
+- A repository with no `issue-` topic is listed under **Other repositories** at the bottom of the page.
+- A repository with an issue but no `section-` topic is listed under **Other** within that issue. If no repository in an issue has a section, the issue shows its articles without section headings.
+- Give each repository only one `issue-` topic and one `section-` topic. If it has more, only the first in alphabetical order is used.
+- Topic changes appear after the next build. The build runs nightly, or you can run it now: open the **Actions** tab, select **Build organization repository index**, and select **Run workflow**.
+
+### `data/issues.json`: issue and section settings
+
+This file is edited by hand. The nightly build never overwrites it. The page reads it directly, so changes appear as soon as GitHub Pages redeploys, with no build needed.
+
+```json
+{
+  "issues": {
+    "2026": {
+      "image": "assets/images/sci.jpeg",
+      "description": "A short paragraph about the theme of this issue."
+    }
+  },
+  "sections": {
+    "managing-energy": {
+      "color": "#2E7D32"
+    }
+  }
+}
+```
+
+**Issues.** Each key under `"issues"` is the part of the topic after `issue-`. The topic `issue-2026` uses the key `"2026"`. Each issue can set:
+
+- `image`: a picture shown beside the issue. Add the image file to `assets/images/` and use its path, such as `"assets/images/cover.jpg"`. A full `https://` URL also works.
+- `description`: plain text shown under the issue title.
+
+**Sections.** Each key under `"sections"` is the part of the topic after `section-`. The topic `section-managing-energy` uses the key `"managing-energy"`. Each section can set:
+
+- `color`: a color swatch shown beside the section heading. Any CSS color works, such as `"#2E7D32"` or `"teal"`.
+
+Every setting is optional. An issue or section with no entry is shown without an image, description, or color. Keep these rules in mind when you edit the file:
+
+- Write keys in lowercase, because GitHub stores topics in lowercase.
+- A section color applies to that section name in every issue.
+- The file must be valid JSON: wrap keys and values in double quotes, and do not leave a comma after the last item in a list. If the file is invalid, the page still loads but without any images, descriptions, or colors. The browser console shows the error.
