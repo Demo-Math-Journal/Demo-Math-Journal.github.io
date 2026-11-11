@@ -7,7 +7,7 @@ I'm a journal on mathematical methods and their applications.
 
 An automatically generated index of every repository in the [Demo-Math-Journal](https://github.com/Demo-Math-Journal) organization. Rebuilt nightly by [GitHub Actions](.github/workflows/build-index.yml). See [SETUP.md](SETUP.md) for how it works, and [Organizing issues and sections](#organizing-issues-and-sections) to place an article in an issue.
 
-_Last built: 2026-11-10T15:35:16.790Z_
+_Last built: 2026-11-11T15:10:12.786Z_
 
 ## [Adaptive Quadrature](https://github.com/Demo-Math-Journal/adaptive-quadrature)
 
